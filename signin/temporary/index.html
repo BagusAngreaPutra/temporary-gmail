@@ -1,0 +1,3770 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <title>Inbox – Gmail</title>
+  <link rel="icon" type="image/webp" href="Gmail.width-500.format-webp.webp">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      color: #1f1f1f;
+      background: #f8fafd;
+      font: 14px Arial, sans-serif;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    svg { display: block; }
+    .icon {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .round-button {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      padding: 10px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      place-items: center;
+    }
+    .round-button:hover { background: #e9eef6; }
+    .topbar {
+      display: grid;
+      height: 64px;
+      padding: 8px 16px 8px 12px;
+      grid-template-columns: 238px minmax(280px, 720px) 1fr;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gmail-logo {
+      display: block;
+      width: 109px;
+      height: auto;
+      object-fit: contain;
+    }
+    .search {
+      display: flex;
+      height: 48px;
+      padding: 0 8px;
+      border-radius: 24px;
+      background: #e9eef6;
+      align-items: center;
+      gap: 4px;
+    }
+    .search input {
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      flex: 1;
+      font-size: 16px;
+    }
+    .top-actions {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 4px;
+    }
+    .avatar {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      margin-left: 8px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: #5f9f35;
+      font-size: 16px;
+      place-items: center;
+    }
+    .upgrade {
+      height: 36px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 18px;
+      color: #0b57d0;
+      background: #d3e3fd;
+      font-weight: 600;
+    }
+    .account-popover {
+      position: absolute;
+      z-index: 90;
+      top: 48px;
+      right: 0;
+      display: none;
+      width: 340px;
+      padding: 14px 10px 16px;
+      border-radius: 28px;
+      color: #1f1f1f;
+      background: #e9eef6;
+      box-shadow: 0 4px 14px rgba(60,64,67,.28);
+      text-align: center;
+    }
+    .account-popover.open { display: block; }
+    .account-email {
+      margin: 1px 36px 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .account-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+    }
+    .account-photo {
+      position: relative;
+      display: grid;
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      color: white;
+      background: #5f9f35;
+      font-size: 34px;
+      font-weight: 400;
+      place-items: center;
+    }
+    .camera {
+      position: absolute;
+      right: -1px;
+      bottom: 1px;
+      display: grid;
+      width: 19px;
+      height: 19px;
+      border: 2px solid #e9eef6;
+      border-radius: 50%;
+      color: #444746;
+      background: white;
+      place-items: center;
+    }
+    .account-greeting { margin: 4px 0 8px; font-size: 18px; }
+    .manage-account {
+      height: 34px;
+      padding: 0 18px;
+      border: 1px solid #747775;
+      border-radius: 18px;
+      color: #0b57d0;
+      background: transparent;
+      font-size: 13px;
+    }
+    .account-actions {
+      display: grid;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 24px;
+      background: white;
+      grid-template-columns: 1fr 1fr;
+    }
+    .account-action {
+      display: flex;
+      height: 48px;
+      padding: 0 14px;
+      border: 0;
+      background: white;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+    }
+    .account-action + .account-action { border-left: 1px solid #d7dce2; }
+    .storage {
+      display: flex;
+      height: 46px;
+      margin-top: 10px;
+      padding: 0 16px;
+      border-radius: 24px;
+      background: white;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .account-footer {
+      margin-top: 16px;
+      color: #5f6368;
+      font-size: 11px;
+    }
+    .account-footer span { margin: 0 7px; }
+    .app {
+      display: grid;
+      height: calc(100vh - 64px);
+      grid-template-columns: 256px minmax(0, 1fr) 48px;
+    }
+    .sidebar {
+      padding: 8px 12px 16px 0;
+      overflow: hidden;
+    }
+    .compose {
+      display: flex;
+      height: 56px;
+      margin: 0 0 16px 8px;
+      padding: 0 24px 0 18px;
+      border: 0;
+      border-radius: 16px;
+      background: #c2e7ff;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(60, 64, 67, .18);
+    }
+    .nav-item {
+      display: flex;
+      height: 32px;
+      padding: 0 14px 0 26px;
+      border-radius: 0 16px 16px 0;
+      align-items: center;
+      gap: 18px;
+      color: #202124;
+    }
+    .nav-item.active {
+      background: #d3e3fd;
+      font-weight: 700;
+    }
+    .nav-item .count {
+      margin-left: auto;
+      font-size: 12px;
+    }
+    .labels-title {
+      display: flex;
+      height: 48px;
+      margin-top: 12px;
+      padding-left: 26px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .content {
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 16px 0 0 0;
+      background: white;
+    }
+    .toolbar {
+      display: flex;
+      height: 48px;
+      padding: 0 12px;
+      border-bottom: 1px solid #edf0f2;
+      align-items: center;
+      gap: 4px;
+    }
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #5f6368;
+      border-radius: 2px;
+    }
+    .toolbar-spacer { flex: 1; }
+    .page-count {
+      margin-right: 8px;
+      color: #5f6368;
+      font-size: 12px;
+    }
+    .tabs {
+      display: grid;
+      height: 56px;
+      border-bottom: 1px solid #e7e9ec;
+      grid-template-columns: repeat(4, minmax(150px, 220px));
+    }
+    .tab {
+      position: relative;
+      display: flex;
+      padding: 0 18px;
+      color: #444746;
+      align-items: center;
+      gap: 14px;
+      font-weight: 600;
+    }
+    .tab.active { color: #0b57d0; }
+    .tab.active::after {
+      position: absolute;
+      right: 10px;
+      bottom: 0;
+      left: 10px;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: #0b57d0;
+      content: "";
+    }
+    .badge {
+      padding: 2px 6px;
+      border-radius: 10px;
+      color: white;
+      background: #188038;
+      font-size: 11px;
+    }
+    .mail-list {
+      height: calc(100vh - 168px);
+      overflow: auto;
+    }
+    .right-rail {
+      display: flex;
+      padding: 10px 4px;
+      border-left: 1px solid #edf0f2;
+      background: white;
+      align-items: center;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .rail-button {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      place-items: center;
+    }
+    .rail-button:hover { background: #f0f4f9; }
+    .rail-divider {
+      width: 20px;
+      height: 1px;
+      margin: 8px 0;
+      background: #e0e3e7;
+    }
+    .rail-plus {
+      margin-top: auto;
+      font-size: 24px;
+      font-weight: 300;
+    }
+    /* Gmail-style navigation rail: compact by default, expanded on hover. */
+    .app { grid-template-columns: 72px minmax(0, 1fr) 48px; }
+    .sidebar {
+      position: relative;
+      z-index: 20;
+      width: 72px;
+      padding-right: 8px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      background: #f8fafd;
+      transition: width .16s ease, box-shadow .16s ease;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    /* Never show clipped counters/notification decorations in compact mode. */
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item .count,
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item .badge {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item::before,
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item::after {
+      display: none !important;
+      content: none !important;
+    }
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item svg circle.notification-mark,
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) [data-view="subscriptions"] svg circle {
+      display: none !important;
+    }
+    .nav-item.has-notification { position: relative; }
+    .nav-item.has-notification::after {
+      position: absolute;
+      top: 4px;
+      left: 43px;
+      display: block;
+      width: 7px;
+      height: 7px;
+      border: 2px solid #f8fafd;
+      border-radius: 50%;
+      background: #d93025;
+      content: "";
+    }
+    .sidebar:hover .nav-item.has-notification::after,
+    .app.sidebar-pinned .nav-item.has-notification::after {
+      display: none !important;
+      content: none !important;
+    }
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item.active {
+      background: transparent;
+    }
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item.active .icon,
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item.active .more-chevron {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      padding: 6px;
+      border-radius: 50%;
+      color: #041e49;
+      background: #c2e7ff;
+      flex: 0 0 32px;
+    }
+    .app:not(.sidebar-pinned) .sidebar:not(:hover) .nav-item.has-notification::after {
+      display: block !important;
+      content: "" !important;
+    }
+    .nav-item.active {
+      color: #041e49;
+      background: #d3e3fd;
+    }
+    .sidebar:hover,
+    .app.sidebar-pinned .sidebar {
+      width: 256px;
+      padding-right: 12px;
+      box-shadow: 4px 0 8px rgba(60,64,67,.12);
+    }
+    .compose {
+      width: 56px;
+      padding: 0;
+      justify-content: center;
+      transition: width .16s ease, padding .16s ease;
+    }
+    .compose span,
+    .nav-item .nav-label,
+    .nav-item .count,
+    .labels-title { display: none; }
+    .sidebar:hover .compose,
+    .app.sidebar-pinned .compose {
+      width: 142px;
+      padding: 0 24px 0 18px;
+      justify-content: flex-start;
+    }
+    .sidebar:hover .compose span,
+    .app.sidebar-pinned .compose span,
+    .sidebar:hover .nav-item .nav-label,
+    .app.sidebar-pinned .nav-item .nav-label,
+    .sidebar:hover .nav-item .count,
+    .app.sidebar-pinned .nav-item .count,
+    .sidebar:hover .labels-title,
+    .app.sidebar-pinned .labels-title { display: flex; }
+    .nav-item {
+      height: 32px;
+      padding: 0;
+      border-radius: 0 18px 18px 0;
+      justify-content: center;
+      gap: 0;
+      white-space: nowrap;
+    }
+    .sidebar:hover .nav-item,
+    .app.sidebar-pinned .nav-item {
+      padding: 0 14px 0 26px;
+      justify-content: flex-start;
+      gap: 18px;
+    }
+    .nav-item .icon {
+      color: #444746;
+      fill: #444746;
+      flex: 0 0 20px;
+    }
+    .nav-item.active .icon {
+      color: #041e49 !important;
+      fill: #041e49 !important;
+    }
+    .nav-item.active .more-chevron,
+    .nav-item.active .more-chevron svg {
+      color: #041e49 !important;
+      fill: #041e49 !important;
+    }
+    .nav-item .active-fill { display: none; }
+    .nav-item.active .active-outline { display: none; }
+    .nav-item.active .active-fill { display: block; }
+    .nav-item .nav-label { min-width: 0; }
+    .nav-item .count { margin-left: auto; }
+    .extra-nav[hidden] { display: none; }
+    .more-chevron {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      color: #444746;
+      place-items: center;
+    }
+    .more-chevron svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      transition: transform .16s ease;
+    }
+    #moreToggle.expanded .more-chevron svg { transform: rotate(180deg); }
+    .nav-item, .tab, .mail-row, .star, .checkbox, button { cursor: pointer; }
+    .checkbox.checked {
+      position: relative;
+      border-color: #0b57d0;
+      background: #0b57d0;
+    }
+    .checkbox.checked::after {
+      position: absolute;
+      top: -3px;
+      left: 1px;
+      color: white;
+      content: "✓";
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .bulk-actions {
+      display: none;
+      align-items: center;
+      gap: 2px;
+    }
+    .default-actions { display: flex; }
+    .toolbar.selection-mode .default-actions { display: none; }
+    .toolbar.selection-mode .bulk-actions { display: flex; }
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      margin: 0 6px;
+      background: #dadce0;
+    }
+    .selection-banner {
+      display: none;
+      min-height: 40px;
+      padding: 10px 16px;
+      color: #5f6368;
+      background: #f2f6fc;
+      text-align: center;
+      font-size: 13px;
+    }
+    .selection-banner.show { display: block; }
+    .selection-banner button {
+      padding: 0;
+      border: 0;
+      color: #0b57d0;
+      background: transparent;
+      font-weight: 600;
+    }
+    .filter-chips {
+      display: none;
+      min-height: 46px;
+      padding: 8px 12px;
+      align-items: center;
+      gap: 7px;
+    }
+    .filter-chips.show { display: flex; }
+    .filter-chip {
+      display: inline-flex;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #747775;
+      border-radius: 8px;
+      background: white;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .chip-chevron {
+      width: 14px;
+      height: 14px;
+      fill: #444746;
+      flex: 0 0 14px;
+    }
+    .advanced-search {
+      margin-left: 4px;
+      color: #0b57d0;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .view-notice {
+      display: none;
+      min-height: 38px;
+      padding: 11px 18px;
+      color: #5f6368;
+      background: #f1f3f4;
+      text-align: center;
+      font-size: 12px;
+    }
+    .view-notice.show { display: block; }
+    .content.no-tabs .tabs { display: none; }
+    .content.special-mode .toolbar,
+    .content.special-mode .tabs,
+    .content.special-mode .filter-chips,
+    .content.special-mode .view-notice { display: none; }
+    .special-page { min-height: 100%; padding: 18px 24px; background: white; }
+    .special-page h2 { margin: 0 0 18px; font-size: 20px; font-weight: 500; }
+    .subscriptions-table { width: 100%; border-collapse: collapse; }
+    .subscriptions-table td { padding: 10px 4px; font-size: 13px; }
+    .sender-dot {
+      display: inline-grid;
+      width: 22px;
+      height: 22px;
+      margin-right: 12px;
+      border-radius: 50%;
+      color: white;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .unsubscribe {
+      border: 0;
+      color: #444746;
+      background: transparent;
+    }
+    .settings-tabs {
+      display: flex;
+      margin: -4px -10px 14px;
+      border-bottom: 1px solid #e0e3e7;
+      gap: 20px;
+    }
+    .settings-tab {
+      padding: 10px 0;
+      border: 0;
+      color: #444746;
+      background: transparent;
+      font-size: 12px;
+    }
+    .settings-tab.active { border-bottom: 3px solid #0b57d0; color: #0b57d0; }
+    .settings-table { width: min(900px, 100%); border-collapse: collapse; font-size: 12px; }
+    .settings-table th, .settings-table td { padding: 9px 14px; text-align: left; }
+    .settings-table tr.section { border-top: 1px solid #dadce0; font-weight: 700; }
+    .setting-link { margin-right: 12px; color: #0b57d0; }
+    .new-label-form input {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 2px solid #0b57d0;
+      outline: 0;
+    }
+    .mail-reader {
+      min-height: 100%;
+      padding: 0 24px 48px;
+      background: white;
+    }
+    .reader-toolbar {
+      display: flex;
+      height: 48px;
+      margin: 0 -12px;
+      align-items: center;
+      gap: 4px;
+    }
+    .reader-toolbar .toolbar-spacer { flex: 1; }
+    .reader-toolbar svg,
+    .reader-title-actions svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .reader-toolbar-count {
+      margin-right: 8px;
+      color: #5f6368;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .reader-title-actions {
+      display: flex;
+      margin-left: auto;
+      align-items: center;
+      gap: 2px;
+    }
+    .reader-title {
+      display: flex;
+      margin: 12px 0 22px 68px;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 400;
+    }
+    .inbox-tag {
+      padding: 2px 5px;
+      border-radius: 3px;
+      color: #5f6368;
+      background: #e0e3e7;
+      font-size: 10px;
+    }
+    .message-heading {
+      display: grid;
+      margin-left: 32px;
+      grid-template-columns: 42px minmax(0,1fr) auto;
+      align-items: start;
+      gap: 10px;
+    }
+    .sender-avatar {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      color: white;
+      background: #5f86e5;
+      font-size: 18px;
+      place-items: center;
+    }
+    .sender-line { font-weight: 700; }
+    .sender-address { color: #5f6368; font-size: 12px; font-weight: 400; }
+    .recipient-line { margin-top: 4px; color: #5f6368; font-size: 12px; }
+    .message-time { color: #5f6368; font-size: 12px; white-space: nowrap; }
+    .message-body {
+      max-width: 900px;
+      margin: 24px 0 30px 84px;
+      color: #202124;
+      line-height: 1.65;
+      font-size: 14px;
+    }
+    .message-body h1 { margin: 8px 0 24px; color: #4285f4; font-size: 32px; font-weight: 400; }
+    .message-body h2 { margin: 10px 0 18px; font-size: 22px; font-weight: 500; }
+    .message-body a { color: #0b57d0; text-decoration: underline; }
+    .message-card {
+      max-width: 620px;
+      padding: 30px 36px;
+      border-radius: 4px;
+      background: #f8fafd;
+    }
+    .message-card.dark { color: white; background: #202328; }
+    .message-card.dark h2 { color: white; }
+    .brand-email {
+      max-width: 680px;
+      overflow: hidden;
+      border: 1px solid #e0e3e7;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(60,64,67,.12);
+    }
+    .brand-hero {
+      padding: 42px 44px;
+      color: white;
+      background: var(--brand, #0b57d0);
+    }
+    .brand-logo-text { margin-bottom: 38px; font-size: 24px; font-weight: 700; letter-spacing: -.5px; }
+    .brand-hero h2 { margin: 0 0 12px; color: white; font-size: 30px; }
+    .brand-content { padding: 30px 44px 38px; }
+    .brand-cta {
+      display: inline-block;
+      margin: 12px 0 20px;
+      padding: 11px 22px;
+      border-radius: 22px;
+      color: white !important;
+      background: var(--brand, #0b57d0);
+      text-decoration: none !important;
+      font-weight: 700;
+    }
+    .feature-grid {
+      display: grid;
+      margin: 22px 0;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .feature-box { padding: 16px; border-radius: 10px; background: #f2f6fc; text-align: center; }
+    .feature-box strong { display: block; margin-bottom: 5px; font-size: 18px; }
+    .receipt {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+    .receipt td { padding: 10px 0; border-bottom: 1px solid #edf0f2; }
+    .receipt td:last-child { text-align: right; font-weight: 600; }
+    .attachment-section {
+      width: min(560px, 100%);
+      margin-top: 34px;
+      margin-bottom: 32px;
+      padding-top: 16px;
+      border-top: 1px dotted #c7c7c7;
+    }
+    .attachment-summary {
+      display: flex;
+      margin-bottom: 14px;
+      align-items: center;
+      gap: 9px;
+      color: #3c4043;
+    }
+    .attachment-summary strong { font-size: 15px; }
+    .attachment-summary .dot { font-weight: 700; }
+    .attachment-summary svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #5f6368;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .attachment-drive-link {
+      display: inline-flex;
+      margin-left: 10px;
+      border: 0;
+      color: #3c4043;
+      background: transparent;
+      align-items: center;
+      gap: 7px;
+      font: inherit;
+    }
+    .mail-attachment {
+      position: relative;
+      display: block;
+      width: 260px;
+      height: 190px;
+      overflow: hidden;
+      border: 1px solid #dadce0;
+      border-radius: 2px;
+      color: #202124 !important;
+      background: #f8f9fa;
+      text-decoration: none !important;
+    }
+    .attachment-preview {
+      position: relative;
+      display: block;
+      height: 136px;
+      padding: 0;
+      overflow: hidden;
+      background: white;
+      box-sizing: border-box;
+    }
+    .attachment-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    .attachment-paper {
+      display: block;
+      width: 100%;
+      height: 118px;
+      padding: 10px 12px;
+      overflow: hidden;
+      border: 1px solid #edf0f2;
+      color: #5f6368;
+      background: white;
+      box-sizing: border-box;
+      font-size: 6.5px;
+      line-height: 1.35;
+      box-shadow: 0 1px 3px rgba(60,64,67,.14);
+    }
+    .attachment-paper strong { display: block; margin-bottom: 8px; color: #1a73e8; font-size: 10px; }
+    .attachment-paper span { display: block; max-width: 100%; overflow: hidden; }
+    .attachment-paper .paper-title { margin: 8px 0; color: #202124; font-size: 8px; font-weight: 700; }
+    .attachment-footer {
+      display: flex;
+      width: 100%;
+      height: 54px;
+      padding: 0 10px;
+      border-top: 1px solid #dadce0;
+      box-sizing: border-box;
+      align-items: center;
+      gap: 9px;
+    }
+    .attachment-pdf {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      border-radius: 2px;
+      color: white;
+      background: #ea4335;
+      font-size: 9px;
+      font-weight: 700;
+      place-items: center;
+    }
+    .attachment-info { display: block; min-width: 0; overflow: hidden; flex: 1; }
+    .attachment-name {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      color: #5f6368;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .attachment-meta { display: block; margin-top: 2px; color: #9aa0a6; font-size: 11px; }
+    .attachment-corner {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-top: 23px solid transparent;
+      border-right: 23px solid #ff4b3e;
+    }
+    .attachment-hover-actions {
+      position: absolute;
+      left: 50%;
+      bottom: 29px;
+      display: none;
+      transform: translateX(-50%);
+      gap: 8px;
+    }
+    .mail-attachment:hover .attachment-preview::after {
+      position: absolute;
+      inset: 0;
+      background: rgba(32,33,36,.32);
+      content: "";
+    }
+    .mail-attachment:hover {
+      border-color: #1a73e8;
+      background: #f1f3f4;
+    }
+    .mail-attachment:hover .attachment-preview { opacity: 0; }
+    .mail-attachment:hover .attachment-footer {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      height: 58px;
+      border-top: 0;
+      background: transparent;
+    }
+    .mail-attachment:hover .attachment-hover-actions { display: flex; z-index: 2; }
+    .attachment-action {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 4px;
+      color: white;
+      background: #747d82;
+      place-items: center;
+    }
+    .message-body .attachment-action {
+      color: #fff !important;
+      text-decoration: none !important;
+    }
+    .attachment-action:hover { background: #5f676c; }
+    .attachment-action svg {
+      width: 21px;
+      height: 21px;
+      fill: currentColor;
+    }
+    .translation-card {
+      display: flex;
+      width: min(455px, calc(100% - 84px));
+      margin: 12px 0 0 84px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background: #f0f4f9;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .translation-card svg { width: 24px; height: 24px; fill: #444746; flex: 0 0 24px; }
+    .translation-copy { flex: 1; }
+    .translation-title { margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+    .translate-button, .translation-close {
+      padding: 0;
+      border: 0;
+      color: #0b57d0;
+      background: transparent;
+      font-weight: 600;
+    }
+    .translation-close { color: #444746; font-size: 22px; font-weight: 400; }
+    .pdf-viewer {
+      position: fixed;
+      z-index: 300;
+      inset: 0;
+      display: none;
+      color: white;
+      background: rgba(20,22,24,.94);
+    }
+    .pdf-viewer.open { display: flex; flex-direction: column; }
+    .pdf-viewer-toolbar {
+      display: flex;
+      min-height: 58px;
+      padding: 0 16px;
+      background: rgba(28,29,31,.96);
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.5);
+    }
+    .pdf-viewer-toolbar .round-button { color: white; }
+    .pdf-viewer-toolbar svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .pdf-viewer-file {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+    .pdf-file-badge {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      border-radius: 2px;
+      background: #ea4335;
+      font-size: 8px;
+      place-items: center;
+    }
+    .pdf-viewer-file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pdf-viewer-spacer { flex: 1; }
+    .open-docs {
+      display: flex;
+      height: 38px;
+      padding: 0 16px;
+      border: 1px solid #80868b;
+      border-radius: 20px;
+      color: white;
+      background: #202124;
+      align-items: center;
+      gap: 8px;
+    }
+    .pdf-viewer-stage {
+      position: relative;
+      display: flex;
+      min-height: 0;
+      padding: 12px 20px 72px;
+      overflow: auto;
+      flex: 1;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .pdf-page-image {
+      display: block;
+      width: min(690px, calc(100vw - 80px));
+      height: auto;
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,.55);
+      transform-origin: top center;
+      transition: width .12s ease;
+    }
+    .pdf-viewer-controls {
+      position: fixed;
+      z-index: 2;
+      bottom: 14px;
+      left: 50%;
+      display: flex;
+      height: 44px;
+      padding: 0 8px 0 14px;
+      border-radius: 24px;
+      background: #303134;
+      align-items: center;
+      transform: translateX(-50%);
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+    }
+    .pdf-page-number {
+      width: 30px;
+      height: 26px;
+      border: 0;
+      color: white;
+      background: #202124;
+      text-align: center;
+    }
+    .pdf-control-divider { width: 1px; height: 24px; background: #5f6368; }
+    .pdf-viewer-controls button {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: transparent;
+      font-size: 20px;
+    }
+    .pdf-viewer-controls button:hover { background: #4a4d51; }
+    .reader-actions { display: flex; margin-left: 84px; gap: 8px; }
+    .reply-button {
+      display: inline-flex;
+      height: 38px;
+      padding: 0 18px;
+      border: 1px solid #747775;
+      border-radius: 20px;
+      background: white;
+      align-items: center;
+      gap: 8px;
+    }
+    .inline-reply {
+      display: none;
+      margin: 18px 0 0 84px;
+      border: 1px solid #dadce0;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 1px 4px rgba(60,64,67,.22);
+    }
+    .inline-reply.open { display: block; }
+    .inline-reply-head {
+      display: flex;
+      min-height: 42px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #edf0f2;
+      align-items: center;
+      gap: 8px;
+      color: #5f6368;
+      font-size: 13px;
+    }
+    .inline-reply-head input {
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      flex: 1;
+    }
+    .inline-editor {
+      min-height: 150px;
+      padding: 16px;
+      outline: 0;
+      line-height: 1.5;
+    }
+    .inline-reply-toolbar {
+      display: flex;
+      min-height: 48px;
+      padding: 6px 10px;
+      align-items: center;
+      gap: 4px;
+    }
+    .inline-send {
+      height: 34px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 18px;
+      color: white;
+      background: #0b57d0;
+      font-weight: 600;
+    }
+    .editor-tool {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 50%;
+      color: #444746;
+      background: transparent;
+      place-items: center;
+    }
+    .editor-tool:hover { background: #e9eef6; }
+    .gemini-image {
+      position: relative;
+      display: block;
+      width: 24px;
+      height: 24px;
+      overflow: hidden;
+      clip-path: polygon(50% 0,58% 28%,72% 42%,100% 50%,72% 58%,58% 72%,50% 100%,42% 72%,28% 58%,0 50%,28% 42%,42% 28%);
+    }
+    .gemini-image img {
+      position: absolute;
+      top: -13px;
+      left: -20px;
+      width: 63px;
+      height: 50px;
+      max-width: none;
+    }
+    .star.starred { color: #f4b400; }
+    .mail-row.selected { background: #c2dbff; }
+    .mail-empty {
+      padding: 64px 24px;
+      color: #5f6368;
+      text-align: center;
+    }
+    .app.sidebar-collapsed { grid-template-columns: 72px minmax(0, 1fr) 48px; }
+    .app.sidebar-collapsed .sidebar { padding-right: 8px; }
+    .app.sidebar-collapsed .compose { width: 56px; padding: 0; justify-content: center; }
+    .app.sidebar-collapsed .compose span,
+    .app.sidebar-collapsed .nav-item span:not(.count),
+    .app.sidebar-collapsed .nav-item .count,
+    .app.sidebar-collapsed .labels-title { display: none; }
+    .app.sidebar-collapsed .nav-item {
+      padding: 0;
+      border-radius: 0 18px 18px 0;
+      justify-content: center;
+      gap: 0;
+    }
+    .overlay {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      display: none;
+      padding: 24px;
+      background: rgba(32,33,36,.36);
+      align-items: center;
+      justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .dialog {
+      width: min(720px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      border-radius: 14px;
+      background: white;
+      box-shadow: 0 8px 28px rgba(60,64,67,.35);
+    }
+    .dialog-header {
+      display: flex;
+      min-height: 56px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #e0e3e7;
+      align-items: center;
+      gap: 12px;
+    }
+    .dialog-header h2 { margin: 0; flex: 1; font-size: 20px; }
+    .dialog-body { padding: 20px 24px 28px; line-height: 1.6; }
+    .dialog-body .meta { margin-bottom: 20px; color: #5f6368; font-size: 13px; }
+    #composeOverlay {
+      inset: auto 16px 0 auto;
+      width: auto;
+      height: auto;
+      padding: 0;
+      background: transparent;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+    .compose-dialog {
+      display: flex;
+      width: min(540px, calc(100vw - 24px));
+      height: min(540px, calc(100vh - 80px));
+      max-height: none;
+      overflow: hidden;
+      border-radius: 8px 8px 0 0;
+      flex-direction: column;
+      align-self: flex-end;
+      transition: width .16s ease, height .16s ease;
+    }
+    .compose-dialog.minimized { width: 300px; height: 42px; }
+    .compose-dialog.popout {
+      width: min(900px, calc(100vw - 48px));
+      height: calc(100vh - 48px);
+      border-radius: 10px;
+    }
+    .compose-dialog .dialog-header {
+      min-height: 42px;
+      padding: 4px 8px 4px 14px;
+      border: 0;
+      background: #edf3fc;
+    }
+    .compose-dialog .dialog-header h2 { color: #041e49; font-size: 14px; font-weight: 600; }
+    .compose-window-actions { display: flex; gap: 0; }
+    .compose-window-actions .round-button { width: 30px; height: 30px; color: #444746; }
+    .compose-window-actions svg {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .compose-fields { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+    .compose-recipient-row {
+      display: flex;
+      min-height: 42px;
+      border-bottom: 1px solid #e0e3e7;
+      align-items: center;
+    }
+    .compose-recipient-label { padding-left: 14px; color: #444746; }
+    .compose-recipient-row input { min-width: 0; border: 0 !important; flex: 1; }
+    .compose-copy-actions { display: flex; padding-right: 12px; gap: 5px; }
+    .compose-copy-actions button {
+      padding: 4px 2px;
+      border: 0;
+      color: #444746;
+      background: transparent;
+      font-size: 14px;
+    }
+    .compose-extra-recipient { display: none; }
+    .compose-extra-recipient.show { display: block; }
+    .compose-fields input, .compose-fields textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 0;
+      border-bottom: 1px solid #e0e3e7;
+      outline: 0;
+    }
+    .compose-fields textarea {
+      min-height: 0;
+      border-bottom: 0;
+      resize: none;
+      font: inherit;
+      flex: 1;
+    }
+    .compose-toolbar {
+      display: flex;
+      min-height: 64px;
+      padding: 10px 12px;
+      align-items: center;
+      gap: 2px;
+    }
+    .send {
+      height: 40px;
+      margin: 0;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 20px 0 0 20px;
+      color: white;
+      background: #0b57d0;
+      font-weight: 600;
+    }
+    .send-menu {
+      width: 36px;
+      height: 40px;
+      margin-right: 7px;
+      border: 0;
+      border-left: 1px solid rgba(255,255,255,.35);
+      border-radius: 0 20px 20px 0;
+      color: white;
+      background: #0b57d0;
+    }
+    .compose-tool {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      padding: 7px;
+      border: 0;
+      border-radius: 50%;
+      color: #5f6368;
+      background: transparent;
+      place-items: center;
+    }
+    .compose-tool:hover { background: #f0f4f9; }
+    .compose-tool svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .compose-toolbar-spacer { flex: 1; }
+    .toast {
+      position: fixed;
+      z-index: 200;
+      bottom: 24px;
+      left: 24px;
+      display: none;
+      min-width: 260px;
+      padding: 14px 20px;
+      border-radius: 4px;
+      color: white;
+      background: #323232;
+      box-shadow: 0 3px 8px rgba(0,0,0,.25);
+    }
+    .toast.show { display: block; }
+    .feature-panel {
+      position: fixed;
+      z-index: 30;
+      top: 64px;
+      right: 18px;
+      display: none;
+      width: 360px;
+      max-height: calc(100vh - 82px);
+      overflow: auto;
+      border: 1px solid #dadce0;
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 8px 28px rgba(60,64,67,.28);
+    }
+    .feature-panel.open { display: block; }
+    .feature-panel-header {
+      display: flex;
+      min-height: 58px;
+      padding: 8px 12px 8px 20px;
+      border-bottom: 1px solid #edf0f2;
+      align-items: center;
+    }
+    .feature-panel-header h2 { margin: 0; flex: 1; font-size: 18px; }
+    .feature-panel-body { padding: 18px 20px 22px; }
+    .help-search, .gemini-prompt {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid #c4c7c5;
+      border-radius: 22px;
+      outline: 0;
+      font: inherit;
+    }
+    .help-search:focus, .gemini-prompt:focus { border-color: #0b57d0; }
+    .help-link {
+      display: block;
+      padding: 12px 4px;
+      border-bottom: 1px solid #edf0f2;
+      color: #202124;
+      text-decoration: none;
+    }
+    .help-link:hover { color: #0b57d0; background: #f8fafd; }
+    .gemini-welcome {
+      padding: 22px;
+      border-radius: 16px;
+      background: linear-gradient(135deg,#edf3ff,#f8efff);
+    }
+    .gemini-suggestions {
+      display: grid;
+      margin: 16px 0;
+      gap: 8px;
+    }
+    .gemini-suggestion {
+      padding: 11px 13px;
+      border: 1px solid #dadce0;
+      border-radius: 12px;
+      background: white;
+      text-align: left;
+    }
+    .gemini-compose { display: flex; margin-top: 16px; gap: 8px; }
+    .gemini-compose .gemini-prompt { flex: 1; min-width: 0; }
+    .gemini-send {
+      width: 44px;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: #0b57d0;
+    }
+    .upgrade-dialog { width: min(760px, calc(100vw - 32px)); }
+    .upgrade-plans { display: grid; margin-top: 18px; grid-template-columns: repeat(2,1fr); gap: 14px; }
+    .upgrade-plan { padding: 20px; border: 1px solid #dadce0; border-radius: 16px; }
+    .upgrade-plan.recommended { border: 2px solid #0b57d0; background: #f4f8ff; }
+    .upgrade-plan h3 { margin: 0 0 8px; }
+    .upgrade-plan ul { min-height: 90px; padding-left: 18px; color: #5f6368; }
+    .upgrade-choose {
+      height: 38px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 19px;
+      color: white;
+      background: #0b57d0;
+    }
+    .mail-row {
+      display: grid;
+      min-height: 40px;
+      padding: 0 16px 0 12px;
+      border-bottom: 1px solid #eceff1;
+      background: #f2f6fc;
+      grid-template-columns: 32px 32px minmax(140px, 210px) minmax(0, 1fr) 72px;
+      align-items: center;
+      box-shadow: inset 0 -1px 0 rgba(100,121,143,.12);
+    }
+    .mail-row.unread {
+      background: white;
+      font-weight: 700;
+    }
+    .mail-row:hover { box-shadow: 0 1px 3px rgba(60,64,67,.3); }
+    .mail-row {
+      position: relative;
+      transition: box-shadow .12s ease, transform .12s ease, background .12s ease;
+    }
+    .mail-row:hover {
+      z-index: 2;
+      background: #fff;
+      grid-template-columns: 32px 32px minmax(140px, 210px) minmax(0, 1fr) 136px;
+      box-shadow: 0 2px 7px rgba(60,64,67,.34);
+      transform: translateY(-1px);
+    }
+    .mail-row .checkbox {
+      border-color: #9aa0a6;
+      opacity: .62;
+    }
+    .star {
+      display: grid;
+      width: 28px;
+      height: 32px;
+      color: #9aa0a6;
+      opacity: .56;
+      place-items: center;
+    }
+    .star svg { width: 19px; height: 19px; fill: currentColor; }
+    .mail-row:hover .checkbox,
+    .mail-row:hover .star,
+    .mail-row .checkbox.checked,
+    .mail-row .star.starred {
+      opacity: 1;
+    }
+    .row-actions {
+      display: none;
+      width: 136px;
+      justify-self: end;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1px;
+    }
+    .row-end {
+      width: 72px;
+      min-width: 72px;
+      justify-self: end;
+    }
+    .mail-row:hover .row-end {
+      width: 136px;
+      min-width: 136px;
+    }
+    .row-action {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      padding: 7px;
+      border: 0;
+      border-radius: 50%;
+      color: #444746;
+      background: transparent;
+      place-items: center;
+    }
+    .row-action:hover { background: #e9eef6; }
+    .row-action svg {
+      width: 19px;
+      height: 19px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .mail-row:hover .time { display: none; }
+    .mail-row:hover .row-actions { display: flex; }
+    .sender, .subject {
+      display: block;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: clip;
+      white-space: nowrap;
+    }
+    .mail-row:hover .subject { text-overflow: ellipsis; }
+    .subject span {
+      color: #5f6368;
+      font-weight: 400;
+    }
+    .time {
+      justify-self: end;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    @media (max-width: 900px) {
+      .topbar { grid-template-columns: 190px minmax(240px, 1fr) auto; }
+      .app { grid-template-columns: 72px minmax(0, 1fr) 48px; }
+      .sidebar { padding-right: 8px; }
+      .compose { width: 56px; padding: 0; justify-content: center; }
+      .compose span, .nav-item span:not(.count), .nav-item .count, .labels-title { display: none; }
+      .nav-item { padding: 0; border-radius: 0 18px 18px 0; justify-content: center; gap: 0; }
+      .tabs { grid-template-columns: repeat(4, 1fr); }
+      .tab { justify-content: center; padding: 0 8px; }
+      .tab span { display: none; }
+    }
+    @media (max-width: 700px) {
+      body { min-width: 0; }
+      .topbar {
+        height: 112px;
+        padding: 6px 8px 8px;
+        grid-template-columns: minmax(0,1fr) auto;
+        grid-template-rows: 48px 48px;
+        gap: 2px 8px;
+      }
+      .brand { min-width: 0; gap: 6px; }
+      .gmail-logo { width: 88px; }
+      .search {
+        width: 100%;
+        height: 44px;
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+      .search input { font-size: 14px; }
+      .top-actions { grid-column: 2; grid-row: 1; }
+      #helpButton, #settingsButton, #upgradeButton,
+      .top-actions > button[aria-label="Google apps"] { display: none; }
+      .avatar { margin-left: 0; }
+      .account-popover {
+        position: fixed;
+        top: 56px;
+        right: 8px;
+        width: min(340px, calc(100vw - 16px));
+      }
+      .app, .app.sidebar-collapsed, .app.sidebar-pinned {
+        height: calc(100dvh - 112px);
+        grid-template-columns: minmax(0,1fr);
+      }
+      .right-rail { display: none; }
+      .sidebar {
+        position: fixed;
+        z-index: 80;
+        top: 112px;
+        bottom: 0;
+        left: 0;
+        width: 268px !important;
+        padding: 8px 10px 16px 0;
+        background: #f8fafd;
+        box-shadow: 4px 0 14px rgba(60,64,67,.2);
+        transform: translateX(-105%);
+        transition: transform .18s ease;
+      }
+      .app.sidebar-pinned .sidebar { transform: translateX(0); }
+      .sidebar .compose {
+        width: 142px;
+        padding: 0 22px;
+        justify-content: flex-start;
+      }
+      .sidebar .compose span,
+      .sidebar .nav-item span:not(.count),
+      .sidebar .nav-item .count,
+      .sidebar .labels-title { display: initial; }
+      .sidebar .nav-item,
+      .app.sidebar-pinned .nav-item {
+        padding: 0 14px 0 26px;
+        border-radius: 0 18px 18px 0;
+        justify-content: flex-start;
+        gap: 18px;
+      }
+      .content {
+        width: 100vw;
+        min-width: 0;
+        max-width: 100vw;
+        overflow: hidden;
+        border-radius: 0;
+      }
+      .toolbar { min-width: 0; padding: 0 6px; overflow: hidden; }
+      .toolbar .pagination { min-width: 0; font-size: 11px; }
+      .toolbar .pagination > span { display: none; }
+      .toolbar .page-count { display: none; }
+      .tabs {
+        overflow-x: auto;
+        grid-template-columns: repeat(4, minmax(70px,1fr));
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab { min-width: 70px; }
+      .mail-list { height: calc(100dvh - 224px); }
+      .mail-row,
+      .mail-row:hover {
+        min-height: 52px;
+        padding: 0 8px;
+        grid-template-columns: 27px 27px minmax(72px, 105px) minmax(0,1fr) 48px;
+        transform: none;
+      }
+      .mail-row:hover .row-actions { display: none; }
+      .mail-row:hover .time { display: block; }
+      .mail-row:hover .row-end { width: 48px; min-width: 48px; }
+      .row-end { width: 48px; min-width: 48px; }
+      .sender { padding-right: 6px; text-overflow: ellipsis; }
+      .subject { text-overflow: ellipsis !important; }
+      .subject span { display: none; }
+      .time { font-size: 10px; }
+      .filter-chips { overflow-x: auto; white-space: nowrap; }
+      .selection-banner { font-size: 11px; }
+      .mail-reader { padding: 0 8px 32px; overflow-x: hidden; }
+      .reader-toolbar {
+        margin: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .reader-toolbar::-webkit-scrollbar { display: none; }
+      .reader-toolbar .toolbar-spacer { min-width: 12px; }
+      .reader-toolbar-count { margin-left: 8px; }
+      .reader-title {
+        margin: 12px 8px 18px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        font-size: 19px;
+      }
+      .reader-title-actions { margin-left: auto; }
+      .message-heading {
+        margin-left: 0;
+        grid-template-columns: 38px minmax(0,1fr) auto;
+        gap: 7px;
+      }
+      .sender-avatar { width: 34px; height: 34px; }
+      .sender-address { display: none; }
+      .message-time { max-width: 82px; overflow: hidden; text-overflow: ellipsis; }
+      .translation-card {
+        width: calc(100% - 8px);
+        margin: 12px 4px 0;
+      }
+      .message-body {
+        width: auto;
+        max-width: none;
+        margin: 20px 8px 28px;
+        overflow-wrap: anywhere;
+      }
+      .message-card, .brand-email { width: 100%; max-width: 100%; }
+      .brand-hero, .brand-content { padding: 26px 20px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .attachment-section { width: 100%; }
+      .mail-attachment { width: min(260px,100%); }
+      .reader-actions { margin-left: 8px; flex-wrap: wrap; }
+      .inline-reply { margin: 18px 4px 0; }
+      .inline-reply-toolbar { overflow-x: auto; }
+      #composeOverlay {
+        inset: 0;
+        width: 100%;
+        height: 100dvh;
+      }
+      .compose-dialog, .compose-dialog.popout {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+      }
+      .compose-dialog.minimized { width: calc(100vw - 16px); height: 42px; margin: 0 8px; }
+      .compose-toolbar { overflow-x: auto; }
+      .compose-tool { flex: 0 0 34px; }
+      .feature-panel {
+        top: 8px;
+        right: 8px;
+        width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+      }
+      .overlay { padding: 10px; }
+      .dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+      .upgrade-plans { grid-template-columns: 1fr; }
+      .settings-tabs { overflow-x: auto; white-space: nowrap; }
+      .settings-table { min-width: 620px; }
+      .special-page { overflow-x: auto; }
+      .pdf-viewer-toolbar { padding: 0 6px; }
+      .pdf-viewer-file { max-width: 140px; }
+      .open-docs { display: none; }
+      .pdf-viewer-stage { padding: 8px 8px 68px; }
+      .pdf-page-image { width: calc(100vw - 20px); }
+      .pdf-viewer-controls { bottom: 8px; }
+    }
+    @media (max-width: 420px) {
+      .gmail-logo { width: 78px; }
+      .top-actions { gap: 0; }
+      .top-actions .round-button { width: 36px; height: 36px; padding: 8px; }
+      .mail-row,
+      .mail-row:hover {
+        grid-template-columns: 25px 25px 82px minmax(0,1fr) 42px;
+      }
+      .reader-toolbar .round-button { flex: 0 0 36px; width: 36px; height: 36px; padding: 8px; }
+      .reader-toolbar-count { display: none; }
+      .message-time { max-width: 52px; font-size: 10px; }
+      .attachment-summary { align-items: flex-start; flex-wrap: wrap; }
+      .compose-toolbar .compose-tool:nth-of-type(n+8):not(#composeDiscard) { display: none; }
+    }
+    @media (max-width: 700px) {
+      body { background: #fff; }
+      .topbar {
+        position: relative;
+        z-index: 50;
+        display: flex;
+        height: 72px;
+        padding: 10px 12px;
+        background: #fff;
+        gap: 8px;
+      }
+      .brand { order: 1; }
+      .brand .gmail-logo { display: none; }
+      .brand #menuButton { width: 44px; height: 44px; }
+      .search {
+        height: 52px;
+        padding: 0 8px 0 2px;
+        border-radius: 28px;
+        background: #f1f3f4;
+        flex: 1;
+        order: 2;
+      }
+      .search > button:first-child { display: none; }
+      .search > button:last-child { display: none; }
+      .search input { padding: 0 14px; font-size: 16px; }
+      .top-actions { flex: 0 0 auto; order: 3; }
+      #geminiButton { display: none; }
+      .top-actions .avatar { width: 40px; height: 40px; }
+      .app, .app.sidebar-collapsed, .app.sidebar-pinned { height: calc(100dvh - 72px); }
+      .sidebar { top: 0; bottom: 0; width: min(86vw, 340px) !important; padding-top: 78px; border-radius: 0 18px 18px 0; }
+      .sidebar::before {
+        position: absolute;
+        top: 26px;
+        left: 72px;
+        color: #202124;
+        content: "Gmail";
+        font-size: 24px;
+      }
+      .mobile-sidebar-close {
+        position: absolute;
+        z-index: 2;
+        top: 16px;
+        left: 16px;
+        display: grid;
+        width: 40px;
+        height: 40px;
+        padding: 9px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        place-items: center;
+      }
+      .mobile-sidebar-close:hover { background: #e9eef6; }
+      .mobile-sidebar-close svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: #444746;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .mobile-sidebar-backdrop {
+        position: fixed;
+        z-index: 70;
+        inset: 0;
+        display: none;
+        background: rgba(32,33,36,.42);
+      }
+      .app.sidebar-pinned .mobile-sidebar-backdrop { display: block; }
+      .sidebar .compose { display: none; }
+      .sidebar > .nav-item,
+      .sidebar > .extra-nav,
+      .sidebar > .labels-title { display: none !important; }
+      .mobile-drawer-nav {
+        display: flex;
+        padding-bottom: 24px;
+        flex-direction: column;
+      }
+      .mobile-drawer-nav .drawer-divider { height: 1px; margin: 8px 0; background: #dadce0; }
+      .mobile-drawer-nav .drawer-label {
+        padding: 18px 24px 8px;
+        color: #5f6368;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .mobile-drawer-nav .nav-item {
+        display: grid;
+        width: calc(100% - 12px);
+        height: 52px;
+        padding: 0 20px 0 28px !important;
+        border-radius: 0 28px 28px 0;
+        grid-template-columns: 34px minmax(0,1fr) auto;
+        align-items: center;
+        gap: 12px !important;
+        font-size: 16px;
+      }
+      .mobile-drawer-nav .nav-item.active { background: #c2e7ff; }
+      .mobile-drawer-nav .nav-item .icon { width: 24px; height: 24px; }
+      .mobile-drawer-nav .count {
+        display: block !important;
+        margin: 0;
+        padding: 0 4px;
+        color: #5f6368;
+        font-size: 13px;
+      }
+      .mobile-drawer-nav .drawer-badge {
+        padding: 6px 10px;
+        border-radius: 15px;
+        color: #202124;
+        background: #81c995;
+        font-size: 12px;
+      }
+      .mobile-drawer-nav .drawer-badge.social { background: #aecbfa; }
+      .mobile-drawer-nav .drawer-badge.updates { background: #ffb774; }
+      .content { background: #fff; }
+      .toolbar, .filter-chips, .selection-banner { display: none !important; }
+      .tabs {
+        display: grid;
+        height: auto;
+        padding: 6px 12px 10px;
+        overflow: visible;
+        border: 0;
+        background: #fff;
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .tabs::before {
+        display: block;
+        padding: 12px 4px 8px;
+        color: #5f6368;
+        content: "Primary";
+        font-size: 14px;
+        font-weight: 600;
+        grid-column: 1;
+      }
+      .tab {
+        display: grid;
+        min-width: 0;
+        height: 68px;
+        padding: 0 16px;
+        border-radius: 14px;
+        color: #3c4043;
+        background: #f8fafd;
+        grid-template-columns: 42px minmax(0,1fr) auto;
+        align-items: center;
+        gap: 10px;
+      }
+      .tab.active { display: none; }
+      .tab span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .tab .badge { display: block; padding: 5px 10px; border-radius: 15px; color: #202124; background: #81c995; }
+      .tab:nth-of-type(4) .badge { background: #f6aea9; }
+      .tab.active::after { display: none; }
+      .mail-list { height: calc(100dvh - 72px); padding: 0 8px 88px; overflow-y: auto; }
+      .mail-row, .mail-row:hover {
+        position: relative;
+        min-height: 96px;
+        margin-bottom: 3px;
+        padding: 11px 10px;
+        border: 0;
+        border-radius: 14px;
+        background: #fff;
+        grid-template-columns: 48px minmax(0,1fr) 54px;
+        grid-template-rows: 24px 24px 28px;
+        gap: 0 8px;
+        box-shadow: none;
+      }
+      .mail-row:nth-child(even) { background: #f8fafd; }
+      .mail-row::before {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        color: #183153;
+        background: #aecbfa;
+        content: attr(data-avatar);
+        font-size: 21px;
+        font-weight: 400;
+        text-transform: uppercase;
+        grid-column: 1;
+        grid-row: 1 / 3;
+        place-items: center;
+      }
+      .mail-row:nth-child(3n+2)::before { background: #a7d7c5; }
+      .mail-row:nth-child(3n+3)::before { background: #f6aea9; }
+      .mail-row .checkbox { display: none; }
+      .mail-row .sender {
+        align-self: center;
+        padding: 0;
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 15px;
+        text-overflow: ellipsis;
+      }
+      .mail-row .subject {
+        display: block;
+        align-self: start;
+        grid-column: 2;
+        grid-row: 2 / 4;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.45;
+        white-space: nowrap;
+        text-overflow: ellipsis !important;
+      }
+      .mail-row .subject span {
+        display: block;
+        overflow: hidden;
+        margin-top: 2px;
+        color: #6f7378;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 400;
+      }
+      .mail-row .row-end { display: contents; }
+      .mail-row .time {
+        display: block;
+        align-self: center;
+        grid-column: 3;
+        grid-row: 1;
+        font-size: 11px;
+        text-align: right;
+      }
+      .mail-row .star {
+        width: 36px;
+        height: 32px;
+        justify-self: end;
+        align-self: end;
+        grid-column: 3;
+        grid-row: 3;
+      }
+      .mail-row .star svg { width: 23px; height: 23px; }
+      .mail-row.unread::after {
+        position: absolute;
+        top: 18px;
+        right: 7px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #5bb8e8;
+        content: "";
+      }
+      .mail-row.unread .time { padding-right: 8px; }
+      .mail-row .row-actions { display: none !important; }
+      .mobile-compose {
+        position: fixed;
+        z-index: 45;
+        right: 18px;
+        bottom: 72px;
+        display: flex;
+        height: 58px;
+        padding: 0 22px;
+        border: 0;
+        border-radius: 18px;
+        color: #fff;
+        background: #0b57d0;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 3px 8px rgba(60,64,67,.32);
+      }
+      .mobile-compose svg { width: 24px; height: 24px; fill: currentColor; }
+      .mobile-bottom-nav {
+        position: fixed;
+        z-index: 44;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        height: 64px;
+        border-top: 1px solid #e0e3e7;
+        background: #f1f3f4;
+        align-items: center;
+        justify-content: space-around;
+      }
+      .mobile-bottom-nav button {
+        display: grid;
+        width: 68px;
+        height: 42px;
+        border: 0;
+        border-radius: 22px;
+        color: #444746;
+        background: transparent;
+        place-items: center;
+      }
+      .mobile-bottom-nav button.active { color: #0b57d0; background: #c2e7ff; }
+      .mobile-bottom-nav svg { width: 25px; height: 25px; fill: currentColor; }
+      .content.special-mode .tabs { display: none; }
+      .content.special-mode .mail-list { height: calc(100dvh - 72px); padding: 0 0 72px; }
+    }
+    @media (min-width: 701px) {
+      .mobile-compose, .mobile-bottom-nav, .mobile-sidebar-close, .mobile-sidebar-backdrop, .mobile-drawer-nav { display: none; }
+    }
+    body.auth-locked {
+      overflow: hidden;
+      background: #f6f8fc;
+    }
+    body.auth-locked > *:not(.auth-gate):not(script) {
+      display: none !important;
+    }
+    .auth-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(194,231,255,.72), transparent 34%),
+        radial-gradient(circle at 85% 85%, rgba(234,221,255,.62), transparent 32%),
+        #f8fafd;
+      color: #1f1f1f;
+      font-family: Arial, sans-serif;
+    }
+    .auth-gate[hidden] { display: none !important; }
+    .auth-card {
+      width: min(430px, 100%);
+      padding: 38px 40px 32px;
+      border: 1px solid #dadce0;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 8px 28px rgba(60,64,67,.13);
+    }
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #3c4043;
+    }
+    .auth-brand img {
+      width: 38px;
+      height: 30px;
+      object-fit: contain;
+    }
+    .auth-card h1 {
+      margin: 0 0 10px;
+      font-size: 27px;
+      font-weight: 500;
+    }
+    .auth-subtitle {
+      margin: 0 0 26px;
+      color: #5f6368;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .auth-field {
+      position: relative;
+      margin-top: 17px;
+    }
+    .auth-field input {
+      width: 100%;
+      height: 54px;
+      box-sizing: border-box;
+      padding: 17px 14px 8px;
+      border: 1px solid #747775;
+      border-radius: 7px;
+      outline: none;
+      background: #fff;
+      font-size: 16px;
+    }
+    .auth-field input:focus {
+      border: 2px solid #0b57d0;
+      padding-left: 13px;
+    }
+    .auth-field label {
+      position: absolute;
+      top: 18px;
+      left: 14px;
+      padding: 0 4px;
+      color: #5f6368;
+      pointer-events: none;
+      transition: .15s ease;
+    }
+    .auth-field input:focus + label,
+    .auth-field input:not(:placeholder-shown) + label {
+      top: -7px;
+      left: 10px;
+      background: #fff;
+      color: #0b57d0;
+      font-size: 12px;
+    }
+    .auth-error {
+      min-height: 18px;
+      margin: 10px 2px 0;
+      color: #b3261e;
+      font-size: 13px;
+    }
+    .auth-browser {
+      margin: 13px 0 24px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f1f3f4;
+      color: #5f6368;
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .auth-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .auth-submit {
+      min-width: 98px;
+      height: 42px;
+      border: 0;
+      border-radius: 21px;
+      background: #0b57d0;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .auth-submit:hover { background: #0842a0; box-shadow: 0 2px 5px rgba(11,87,208,.28); }
+    .auth-submit:disabled { opacity: .65; cursor: default; }
+    @media (max-width: 600px) {
+      .auth-gate { padding: 0; background: #fff; place-items: stretch; }
+      .auth-card {
+        width: 100%;
+        min-height: 100dvh;
+        box-sizing: border-box;
+        padding: 42px 26px 30px;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .auth-brand { margin-bottom: 42px; }
+      .auth-card h1 { font-size: 25px; }
+    }
+    /* Google-style temporary access screen */
+    .auth-gate {
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      background: #f0f4f9;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .auth-shell { width: min(1040px, 100%); }
+    .auth-card {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 76px;
+      width: 100%;
+      min-height: 402px;
+      box-sizing: border-box;
+      padding: 40px 38px 34px;
+      border: 0;
+      border-radius: 28px;
+      box-shadow: none;
+      background: #fff;
+    }
+    .auth-loading-bar {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 4px;
+      overflow: hidden;
+      background: transparent;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    .auth-loading-bar.active {
+      opacity: 1;
+      background: #d2e3fc;
+    }
+    .auth-loading-bar span {
+      display: block;
+      width: 38%;
+      height: 100%;
+      background: #0b57d0;
+      transform: translateX(-110%);
+    }
+    .auth-loading-bar.active span {
+      animation: googleAuthLoading .72s cubic-bezier(.4,0,.2,1) infinite;
+    }
+    @keyframes googleAuthLoading {
+      0% { transform: translateX(-110%) scaleX(.75); }
+      48% { transform: translateX(105%) scaleX(1.15); }
+      100% { transform: translateX(285%) scaleX(.75); }
+    }
+    .auth-intro,
+    .auth-entry {
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .auth-card.auth-transitioning .auth-intro,
+    .auth-card.auth-transitioning .auth-entry {
+      opacity: .7;
+      transform: translateY(2px);
+      pointer-events: none;
+    }
+    .auth-intro { min-width: 0; }
+    .auth-google-logo {
+      display: block;
+      width: 42px;
+      height: 42px;
+      margin: 0 0 28px;
+      object-fit: contain;
+    }
+    .auth-card h1 {
+      margin: 0 0 17px;
+      font-size: 42px;
+      line-height: 1.12;
+      font-weight: 400;
+      letter-spacing: -.8px;
+      color: #1f1f1f;
+    }
+    .auth-subtitle {
+      max-width: 450px;
+      margin: 0;
+      color: #1f1f1f;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .auth-demo-notice {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #fef7e0;
+      color: #5f4b00;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .auth-entry {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      padding-top: 76px;
+    }
+    .auth-step { display: none; }
+    .auth-step.active { display: block; }
+    .auth-field { margin: 0; }
+    .auth-field input {
+      height: 56px;
+      padding: 16px 14px;
+      border-color: #747775;
+      border-radius: 4px;
+    }
+    .auth-field input:focus {
+      border: 2px solid #0b57d0;
+      padding: 15px 13px;
+    }
+    .auth-field label { top: 19px; font-size: 16px; }
+    .auth-field input:focus + label,
+    .auth-field input:not(:placeholder-shown) + label {
+      top: -7px;
+      color: #0b57d0;
+      font-size: 12px;
+    }
+    .auth-text-button,
+    .auth-inline-link,
+    .auth-footer button {
+      border: 0;
+      padding: 0;
+      background: none;
+      color: #0b57d0;
+      font: inherit;
+      cursor: pointer;
+    }
+    .auth-text-button {
+      align-self: flex-start;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .auth-guest-copy,
+    .auth-code-help {
+      margin: 48px 0 0;
+      color: #444746;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .auth-inline-link { font-weight: 600; }
+    .auth-error {
+      min-height: 18px;
+      margin: 12px 0 0;
+      font-size: 13px;
+    }
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 34px;
+      margin-top: auto;
+      padding-top: 20px;
+    }
+    .auth-secondary-action {
+      display: inline-flex;
+      height: 40px;
+      align-self: center;
+      align-items: center;
+      margin: 0;
+      line-height: 40px;
+    }
+    .auth-submit {
+      min-width: 78px;
+      height: 40px;
+      padding: 0 24px;
+      border-radius: 22px;
+      background: #0b57d0;
+    }
+    .auth-show-code {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 14px;
+      color: #1f1f1f;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .auth-show-code input { width: 18px; height: 18px; accent-color: #0b57d0; }
+    .auth-code-help { margin-top: 34px; }
+    .auth-account-chip {
+      display: inline-flex;
+      max-width: 100%;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 3px 10px 3px 3px;
+      border: 1px solid #747775;
+      border-radius: 20px;
+      background: #fff;
+      color: #1f1f1f;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .auth-account-chip[hidden] { display: none; }
+    .auth-chip-avatar {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border-radius: 50%;
+      background: #5b9e35;
+      color: #fff;
+    }
+    .auth-account-chip svg,
+    .auth-language svg { width: 18px; height: 18px; fill: #444746; }
+    .auth-footer {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 17px 16px 0;
+      color: #1f1f1f;
+      font-size: 12px;
+    }
+    .auth-language {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #1f1f1f !important;
+    }
+    .auth-footer-links { display: flex; gap: 30px; }
+    .auth-footer-links button { color: #1f1f1f; }
+    .auth-browser-id {
+      display: none;
+    }
+    @media (max-width: 760px) {
+      .auth-gate { padding: 0; place-items: stretch; background: #fff; }
+      .auth-shell { width: 100%; min-height: 100dvh; }
+      .auth-card {
+        display: block;
+        min-height: calc(100dvh - 82px);
+        padding: 34px 24px 26px;
+        border-radius: 0;
+      }
+      .auth-google-logo { width: 36px; height: 36px; margin-bottom: 26px; }
+      .auth-card h1 { font-size: 32px; }
+      .auth-entry { min-height: 370px; padding-top: 38px; }
+      .auth-guest-copy { margin-top: 38px; }
+      .auth-actions { margin-top: 58px; }
+      .auth-footer { padding: 18px 24px; }
+      .auth-browser-id { display: none; }
+      .auth-footer-links { gap: 18px; }
+    }
+  </style>
+</head>
+<body class="auth-locked">
+  <section class="auth-gate" id="authGate" aria-labelledby="authTitle">
+    <div class="auth-shell">
+      <form class="auth-card" id="temporaryLogin" novalidate>
+        <div class="auth-loading-bar" id="authLoadingBar" aria-hidden="true"><span></span></div>
+        <div class="auth-intro">
+          <img class="auth-google-logo" src="Google__G__logo.svg.webp" alt="Google">
+          <h1 id="authTitle">Temporary sign in</h1>
+          <p class="auth-subtitle" id="authSubtitle">with your temporary Google Account. This account will be available to other Google apps in the browser.</p>
+          <p class="auth-demo-notice" id="authDemoNotice">Unofficial interface demo. Do not enter your real Google password.</p>
+          <button class="auth-account-chip" id="authAccountChip" type="button" hidden>
+            <span class="auth-chip-avatar">B</span>
+            <span id="authChipEmail"></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5z"/></svg>
+          </button>
+        </div>
+        <div class="auth-entry">
+          <div class="auth-step active" id="authEmailStep">
+            <div class="auth-field">
+              <input id="temporaryEmail" type="email" autocomplete="username" placeholder=" " required>
+              <label for="temporaryEmail">Email or phone</label>
+            </div>
+            <button class="auth-text-button" id="forgotEmailButton" type="button">Forgot email?</button>
+            <p class="auth-guest-copy">Not your computer? Use Guest mode to sign in privately. <button type="button" class="auth-inline-link" id="guestModeButton">Learn more about using Guest mode</button></p>
+          </div>
+          <div class="auth-step" id="authCodeStep">
+            <div class="auth-field">
+              <input id="temporaryCode" type="password" autocomplete="current-password" placeholder=" " minlength="18" maxlength="18" required>
+              <label for="temporaryCode">Enter your code</label>
+            </div>
+            <label class="auth-show-code"><input id="showTemporaryCode" type="checkbox"> Show code</label>
+            <p class="auth-code-help">Use the 18-character temporary access code assigned to this account.</p>
+          </div>
+          <div class="auth-error" id="temporaryLoginError" role="alert"></div>
+          <div class="auth-actions">
+            <button class="auth-text-button auth-secondary-action" id="authSecondaryAction" type="button">Create account</button>
+            <button class="auth-submit" id="temporaryLoginButton" type="submit">Next</button>
+          </div>
+        </div>
+      </form>
+      <div class="auth-footer">
+        <button class="auth-language" type="button">English (United States)
+          <svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5z"/></svg>
+        </button>
+        <div class="auth-footer-links">
+          <button type="button">Help</button>
+          <button type="button">Privacy</button>
+          <button type="button">Terms</button>
+        </div>
+        <span class="auth-browser-id">Browser ID: <span id="temporaryBrowserId"></span></span>
+      </div>
+    </div>
+  </section>
+  <header class="topbar">
+    <div class="brand">
+      <button class="round-button" id="menuButton" aria-label="Main menu">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+      </button>
+      <img class="gmail-logo" src="image.png" alt="Gmail">
+    </div>
+    <div class="search">
+      <button class="round-button" aria-label="Search">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m19.6 18.4-4.7-4.7a6.5 6.5 0 1 0-1.2 1.2l4.7 4.7zM5 10a5 5 0 1 1 10 0 5 5 0 0 1-10 0"/></svg>
+      </button>
+      <input id="searchInput" aria-label="Search mail" placeholder="Search mail">
+      <button class="round-button" aria-label="Search options">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h10v2H3zm14 0h4v2h-4zM3 16h4v2H3zm8 0h10v2H11zM13 4h4v6h-4zM7 14h4v6H7z"/></svg>
+      </button>
+    </div>
+    <div class="top-actions">
+      <button class="round-button" id="helpButton" aria-label="Help">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M11 18h2v-2h-2zm1-16A10 10 0 1 0 22 12 10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8m0-14a4 4 0 0 0-4 4h2a2 2 0 1 1 3 1.73A3.42 3.42 0 0 0 11 15h2c0-.71.29-1.09 1.21-1.8A4 4 0 0 0 12 6"/></svg>
+      </button>
+      <button class="round-button" id="settingsButton" aria-label="Settings">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m19.4 13 .1-1-.1-1 2.1-1.7-2-3.5-2.6 1a8 8 0 0 0-1.7-1L14.8 3h-4l-.4 2.8a8 8 0 0 0-1.7 1l-2.6-1-2 3.5L6.2 11l-.1 1 .1 1-2.1 1.7 2 3.5 2.6-1a8 8 0 0 0 1.7 1l.4 2.8h4l.4-2.8a8 8 0 0 0 1.7-1l2.6 1 2-3.5zM12.8 19h-1.6l-.3-2.2-.7-.3a6 6 0 0 1-1-.6l-.6-.5-2 .8-.8-1.4 1.8-1.4-.1-.8v-1.2l.1-.8-1.8-1.4.8-1.4 2 .8.6-.5a6 6 0 0 1 1-.6l.7-.3.3-2.2h1.6l.3 2.2.7.3a6 6 0 0 1 1 .6l.6.5 2-.8.8 1.4-1.8 1.4.1.8v1.2l-.1.8 1.8 1.4-.8 1.4-2-.8-.6.5a6 6 0 0 1-1 .6l-.7.3zm-.8-3.5a3.5 3.5 0 1 0-3.5-3.5 3.5 3.5 0 0 0 3.5 3.5m0-2A1.5 1.5 0 1 1 13.5 12 1.5 1.5 0 0 1 12 13.5"/></svg>
+      </button>
+      <button class="upgrade" id="upgradeButton">Upgrade</button>
+      <button class="round-button gemini" id="geminiButton" aria-label="Gemini">
+        <span class="gemini-image" aria-hidden="true"><img src="gemini.webp" alt=""></span>
+      </button>
+      <button class="round-button" aria-label="Google apps">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 3h3v3H5zm6 0h3v3h-3zm6 0h3v3h-3zM5 10h3v3H5zm6 0h3v3h-3zm6 0h3v3h-3zM5 17h3v3H5zm6 0h3v3h-3zm6 0h3v3h-3z"/></svg>
+      </button>
+      <button class="avatar" id="accountButton" aria-label="Google Account">B</button>
+      <section class="account-popover" id="accountPopover" aria-label="Google Account">
+        <button class="round-button account-close" id="accountClose" aria-label="Close account menu">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>
+        </button>
+        <div class="account-email">angreaputrabagus@gmail.com</div>
+        <div class="account-photo">B
+          <span class="camera">
+            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M9 4 7.5 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.5L15 4zm3 13a4.5 4.5 0 1 1 4.5-4.5A4.5 4.5 0 0 1 12 17m0-2a2.5 2.5 0 1 0-2.5-2.5A2.5 2.5 0 0 0 12 15"/></svg>
+          </span>
+        </div>
+        <div class="account-greeting">Hi, Bagus!</div>
+        <button class="manage-account" data-account-action="Manage your Google Account">Manage your Google Account</button>
+        <div class="account-actions">
+          <button class="account-action" data-account-action="Add account">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e8f0fe"/><path fill="#1967d2" d="M11 6h2v5h5v2h-5v5h-2v-5H6v-2h5z"/></svg>
+            Add account
+          </button>
+          <button class="account-action" data-account-action="Sign out">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M10 3H4v18h6v-2H6V5h4zm4.6 4.6L13.2 9l2 2H9v2h6.2l-2 2 1.4 1.4L19 12z"/></svg>
+            Sign out
+          </button>
+        </div>
+        <div class="storage" data-account-action="Storage">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="#4285f4" d="m8.2 4 3.2 5.5L8.2 15H2l6.2-11"/><path fill="#34a853" d="M8.2 4h7.6l3.1 5.5h-7.5z"/><path fill="#fbbc04" d="M8.2 15h10.7l3.1-5.5h-10.6z"/><path fill="#ea4335" d="m8.2 15 3.2-5.5h7.5L15.8 15z"/></svg>
+          <span>84% of 15 GB used</span>
+        </div>
+        <div class="account-footer">Privacy Policy <span>•</span> Terms of Service</div>
+      </section>
+    </div>
+  </header>
+
+  <main class="app" id="app">
+    <aside class="sidebar">
+      <button class="mobile-sidebar-close" id="mobileSidebarClose" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="mobile-drawer-nav">
+        <div class="nav-item" data-view="inbox" data-category="Primary"><svg class="icon" viewBox="0 0 24 24"><path d="M3 5h18v14H3zm3-3h12v2H6zm0 7h12v7H6z"/></svg><span class="nav-label">All inboxes</span></div>
+        <div class="drawer-divider"></div>
+        <div class="nav-item active" data-view="inbox" data-category="Primary"><svg class="icon" viewBox="0 0 24 24"><path d="M3 4h18v16H3zm3 3v8h3l1.5 2h3l1.5-2h3V7z"/></svg><span class="nav-label">Primary</span><span class="count">708</span></div>
+        <div class="nav-item" data-view="inbox" data-category="Promotions"><svg class="icon" viewBox="0 0 24 24"><path d="m20 12-8 8-9-9V4h7zm-13-5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg><span class="nav-label">Promotions</span><span class="drawer-badge">353 new</span></div>
+        <div class="nav-item" data-view="inbox" data-category="Social"><svg class="icon" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4M8 12a3 3 0 1 0-3-3 3 3 0 0 0 3 3m8 1c-3 0-6 1.5-6 4.5V20h12v-2.5C22 14.5 19 13 16 13M8 14c-3 0-6 1.5-6 4v2h6v-2.5a5 5 0 0 1 1.3-3.4A7 7 0 0 0 8 14"/></svg><span class="nav-label">Social</span><span class="drawer-badge social">178 new</span></div>
+        <div class="nav-item" data-view="inbox" data-category="Updates"><svg class="icon" viewBox="0 0 24 24"><path d="M11 7h2v7h-2zm0 9h2v2h-2zM12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2"/></svg><span class="nav-label">Updates</span><span class="drawer-badge updates">203 new</span></div>
+        <div class="drawer-label">All labels</div>
+        <div class="nav-item" data-view="starred"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span class="nav-label">Starred</span></div>
+        <div class="nav-item" data-view="snoozed"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m1 5h-2v6l5 3 1-1.7-4-2.4z"/></svg><span class="nav-label">Snoozed</span></div>
+        <div class="nav-item" data-view="important"><svg class="icon" viewBox="0 0 24 24"><path d="M3 5h13l5 7-5 7H3l5-7z"/></svg><span class="nav-label">Important</span><span class="count">24</span></div>
+        <div class="nav-item" data-view="purchases"><svg class="icon" viewBox="0 0 24 24"><path d="M8 2h8v3h4v17H4V5h4zm2 3h4V4h-4z"/></svg><span class="nav-label">Purchases</span><span class="count">4</span></div>
+        <div class="nav-item" data-view="sent"><svg class="icon" viewBox="0 0 24 24"><path d="m3 3 18 9-18 9v-7l12-2L3 10z"/></svg><span class="nav-label">Sent</span></div>
+        <div class="nav-item" data-view="scheduled"><svg class="icon" viewBox="0 0 24 24"><path d="m3 3 18 9-8 3-3 6-2-7z"/><circle cx="17" cy="18" r="4"/></svg><span class="nav-label">Scheduled</span></div>
+        <div class="nav-item" data-view="all"><svg class="icon" viewBox="0 0 24 24"><path d="M3 5h18v14H3zm3-3h12v2H6zm1 7h10v2H7z"/></svg><span class="nav-label">All Mail</span></div>
+        <div class="nav-item" data-view="drafts"><svg class="icon" viewBox="0 0 24 24"><path d="M5 2h10l4 4v16H5zm2 2v16h10V8h-4V4z"/></svg><span class="nav-label">Drafts</span><span class="count">5</span></div>
+      </div>
+      <button class="compose" id="composeButton">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18.7 2.3a1 1 0 0 0-1.4 0L4 15.6V20h4.4L21.7 6.7a1 1 0 0 0 0-1.4zM7.6 18H6v-1.6L16 6l1.6 1.6z"/></svg>
+        <span>Compose</span>
+      </button>
+      <div class="nav-item active has-notification" data-view="inbox">
+        <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M4 3h16v18H4zm2 2v11h3.5l1.5 2h2l1.5-2H18V5z"/><path class="active-fill" d="M4 3h16v18H4zm3 11h3l1.5 2h1l1.5-2h3V6H7z"/></svg>
+        <span class="nav-label">Inbox</span><span class="count">2,192</span>
+      </div>
+      <div class="nav-item" data-view="starred">
+        <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9zm0 4.5-1.3 2.7-3 .4 2.2 2.1-.5 3 2.6-1.4 2.6 1.4-.5-3 2.2-2.1-3-.4z"/><path class="active-fill" d="m12 2.8 2.9 5.8 6.4.9-4.7 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4-4.7-4.5 6.4-.9z"/></svg>
+        <span class="nav-label">Starred</span>
+      </div>
+      <div class="nav-item" data-view="snoozed">
+        <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8m1-13h-2v6l5.2 3 1-1.7-4.2-2.4z"/><path class="active-fill" fill-rule="evenodd" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m1 4h-2v7l5 3 1-1.7-4-2.4z"/></svg>
+        <span class="nav-label">Snoozed</span>
+      </div>
+      <div class="nav-item" data-view="sent">
+        <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="m3 3 18 9-18 9v-7l12-2L3 10zm2 3.2v2.2l7.2 1.2zm0 9.4v2.2l7.2-3.4z"/><path class="active-fill" d="m2 3 20 9-20 9 3-8 11-1-11-1z"/></svg>
+        <span class="nav-label">Sent</span>
+      </div>
+      <div class="nav-item has-notification" data-view="drafts">
+        <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M5 2h10l4 4v16H5zm2 2v16h10V8h-4V4zm8 .8V6h1.2z"/><path class="active-fill" d="M5 2h10l4 4v16H5zm9 2v4h4z"/></svg>
+        <span class="nav-label"><strong>Drafts</strong></span><span class="count">15</span>
+      </div>
+      <div class="nav-item has-notification" data-view="purchases">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path class="active-outline" d="M8 2h8v3h4v17H4V5h4zm2 3h4V4h-4zM6 7v13h12V7z"/>
+          <path class="active-fill" d="M8 2h8v3h4v17H4V5h4zm2 3h4V4h-4z"/>
+        </svg>
+        <span class="nav-label"><strong>Purchases</strong></span><span class="count">13</span>
+      </div>
+      <div class="nav-item" id="moreToggle" data-view="more">
+        <span class="more-chevron" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m7.4 8.6 4.6 4.6 4.6-4.6L18 10l-6 6-6-6z"/></svg>
+        </span>
+        <span class="nav-label" id="moreLabel">More</span>
+      </div>
+      <div class="extra-nav" id="extraNav" hidden>
+        <div class="nav-item" data-view="important">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path class="active-outline" d="M3 5h13l5 7-5 7H3l5-7zm2.8 2 4.6 5-4.6 5H15l3.6-5L15 7z"/>
+            <path class="active-fill" d="M3 5h13l5 7-5 7H3l5-7z"/>
+          </svg>
+          <span class="nav-label">Important</span>
+        </div>
+        <div class="nav-item" data-view="scheduled">
+          <svg class="icon" viewBox="0 0 24 24"><g class="active-outline"><path d="m3 3 18 9-8 3-3 6-2-7zm3.7 4.1L9.4 16l2.3-3 4.3-1.6z"/><circle cx="17" cy="18" r="4"/><path fill="#fff" d="M17.5 15.5h-1v3l2 1 .5-.9-1.5-.8z"/></g><g class="active-fill"><path d="m2 3 20 9-8 3-3 7-3-8z"/><circle cx="17" cy="18" r="5"/><path fill="#fff" d="M17.7 15h-1.4v3.5l2.5 1.3.7-1.2-1.8-.9z"/></g></svg>
+          <span class="nav-label">Scheduled</span>
+        </div>
+        <div class="nav-item" data-view="all">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M3 5h18v14H3zm2 2v10h14V7zm1-5h12v2H6zm1 7h10v2H7z"/><path class="active-fill" fill-rule="evenodd" d="M3 5h18v14H3zm4 4h10v2H7zM6 2h12v2H6z"/></svg>
+          <span class="nav-label">All Mail</span>
+        </div>
+        <div class="nav-item has-notification" data-view="spam">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="m8 2-6 6v8l6 6h8l6-6V8l-6-6zm1 2h6l5 5v6l-5 5H9l-5-5V9zm2 4h2v6h-2zm0 8h2v2h-2z"/><path class="active-fill" fill-rule="evenodd" d="m8 2-6 6v8l6 6h8l6-6V8l-6-6zm3 5h2v7h-2zm0 9h2v2h-2z"/></svg>
+          <span class="nav-label">Spam</span><span class="count">12</span>
+        </div>
+        <div class="nav-item" data-view="trash">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M7 4V2h10v2h4v2h-2v16H5V6H3V4zm0 2v14h10V6zm2 2h2v9H9zm4 0h2v9h-2z"/><path class="active-fill" d="M7 4V2h10v2h4v2h-2v16H5V6H3V4zm2 4v10h2V8zm4 0v10h2V8z"/></svg>
+          <span class="nav-label">Trash</span>
+        </div>
+        <div class="nav-item" data-view="subscriptions">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M3 4h18v16H3zm2 2v1l7 5 7-5V6zm0 3.5V18h14V9.5l-7 4.5z"/><path class="active-fill" d="M2 4h20v16H2zm3 3 7 5 7-5V6H5z"/></svg>
+          <span class="nav-label">Manage subscriptions</span>
+        </div>
+        <div class="nav-item" data-view="manage-labels">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="m19.4 13 .1-1-.1-1 2-1.6-2-3.4-2.5 1a8 8 0 0 0-1.7-1L14.8 3h-4l-.4 2.7a8 8 0 0 0-1.7 1L6.2 5.8l-2 3.4L6.3 11l-.1 1 .1 1-2.1 1.7 2 3.4 2.5-1a8 8 0 0 0 1.7 1l.4 2.9h4l.4-2.9a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m0-2a2 2 0 1 0-2-2 2 2 0 0 0 2 2"/><path class="active-fill" fill-rule="evenodd" d="m19.4 13 .1-1-.1-1 2-1.6-2-3.4-2.5 1a8 8 0 0 0-1.7-1L14.8 3h-4l-.4 2.7a8 8 0 0 0-1.7 1L6.2 5.8l-2 3.4L6.3 11l-.1 1 .1 1-2.1 1.7 2 3.4 2.5-1a8 8 0 0 0 1.7 1l.4 2.9h4l.4-2.9a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM12 15a3 3 0 1 0-3-3 3 3 0 0 0 3 3"/></svg>
+          <span class="nav-label">Manage labels</span>
+        </div>
+        <div class="nav-item" data-view="create-label">
+          <svg class="icon" viewBox="0 0 24 24"><path class="active-outline" d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/><path class="active-fill" d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/></svg>
+          <span class="nav-label">Create new label</span>
+        </div>
+      </div>
+      <div class="labels-title"><span>Labels</span><span style="font-size:22px">＋</span></div>
+    </aside>
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+
+    <section class="content">
+      <div class="filter-chips" id="filterChips">
+        <button class="filter-chip">From <svg class="chip-chevron" viewBox="0 0 24 24"><path d="m7 9 5 5 5-5z"/></svg></button>
+        <button class="filter-chip">Any time <svg class="chip-chevron" viewBox="0 0 24 24"><path d="m7 9 5 5 5-5z"/></svg></button>
+        <button class="filter-chip">Has attachment</button>
+        <button class="filter-chip">To <svg class="chip-chevron" viewBox="0 0 24 24"><path d="m7 9 5 5 5-5z"/></svg></button>
+        <button class="filter-chip">Is unread</button>
+        <span class="advanced-search">Advanced search</span>
+      </div>
+      <div class="toolbar" id="toolbar">
+        <div class="checkbox" id="selectAll" title="Select all"></div>
+        <div class="default-actions">
+          <button class="round-button" aria-label="Refresh"><svg class="icon" viewBox="0 0 24 24"><path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.7-4.2L13 11h8V3z"/></svg></button>
+          <button class="round-button" aria-label="More"><svg class="icon" viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0-2-2 2 2 0 0 0 2 2m0 2a2 2 0 1 0 2 2 2 2 0 0 0-2-2m0 6a2 2 0 1 0 2 2 2 2 0 0 0-2-2"/></svg></button>
+        </div>
+        <div class="bulk-actions" id="bulkActions">
+          <button class="round-button" data-bulk="archive" aria-label="Archive"><svg class="icon" viewBox="0 0 24 24"><path d="M4 3h16l2 4v3h-2v11H4V10H2V7zm1.3 2-1 2h15.4l-1-2zM6 10v9h12v-9zm3 2h6v2H9z"/></svg></button>
+          <button class="round-button" data-bulk="spam" aria-label="Report spam"><svg class="icon" viewBox="0 0 24 24"><path d="m8 2-6 6v8l6 6h8l6-6V8l-6-6zm1 2h6l5 5v6l-5 5H9l-5-5V9zm2 3h2v7h-2zm0 9h2v2h-2z"/></svg></button>
+          <button class="round-button" data-bulk="delete" aria-label="Delete"><svg class="icon" viewBox="0 0 24 24"><path d="M7 4V2h10v2h4v2h-2v16H5V6H3V4zm0 2v14h10V6zm2 2h2v9H9zm4 0h2v9h-2z"/></svg></button>
+          <span class="toolbar-divider"></span>
+          <button class="round-button" data-bulk="unread" aria-label="Mark as unread"><svg class="icon" viewBox="0 0 24 24"><path d="M3 5h18v14H3zm2 2v1l7 5 7-5V7zm0 3.5V17h14v-6.5l-7 4.5z"/></svg></button>
+          <button class="round-button" data-bulk="snooze" aria-label="Snooze"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8m1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg></button>
+          <button class="round-button" data-bulk="move" aria-label="Move to"><svg class="icon" viewBox="0 0 24 24"><path d="M3 5h7l2 2h9v12H3zm2 2v10h14V9h-8l-2-2zm7 3 4 3-4 3v-2H8v-2h4z"/></svg></button>
+          <button class="round-button" data-bulk="label" aria-label="Labels"><svg class="icon" viewBox="0 0 24 24"><path d="m20 12-8 8-9-9V4h7zm-13-5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg></button>
+          <button class="round-button" data-bulk="more" aria-label="More"><svg class="icon" viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0-2-2 2 2 0 0 0 2 2m0 2a2 2 0 1 0 2 2 2 2 0 0 0-2-2m0 6a2 2 0 1 0 2 2 2 2 0 0 0-2-2"/></svg></button>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <span class="page-count">1–50 of 2,184</span>
+        <button class="round-button" aria-label="Previous">‹</button>
+        <button class="round-button" aria-label="Next">›</button>
+      </div>
+      <div class="view-notice" id="viewNotice"></div>
+      <div class="selection-banner" id="selectionBanner">
+        <span id="selectionMessage"></span>
+        <button id="selectAllConversations">Select all 2,430 conversations in Primary</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-category="Primary"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v18H3zm2 4v2h14V7zm0 4v2h9v-2z"/></svg><span>Primary</span></div>
+        <div class="tab" data-category="Promotions"><svg class="icon" viewBox="0 0 24 24"><path d="m20 12-8 8-9-9V4h7zm-13-5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/></svg><span>Promotions</span><span class="badge">50 new</span></div>
+        <div class="tab" data-category="Social"><svg class="icon" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4M8 12a3 3 0 1 0-3-3 3 3 0 0 0 3 3m8 1c-3 0-6 1.5-6 4.5V20h12v-2.5C22 14.5 19 13 16 13M8 14c-3 0-6 1.5-6 4v2h6v-2.5a5 5 0 0 1 1.3-3.4A7 7 0 0 0 8 14"/></svg><span>Social</span></div>
+        <div class="tab" data-category="Updates"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 8-4v6h2V7zm-7 9v6l7 4 7-4v-6l-7 3z"/></svg><span>Updates</span></div>
+      </div>
+      <div class="mail-list" id="mailList"></div>
+    </section>
+    <aside class="right-rail" aria-label="Google apps">
+      <button class="rail-button" aria-label="Calendar">
+        <svg class="icon" viewBox="0 0 24 24"><path fill="#4285f4" d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2"/><path fill="#fff" d="M7 9h10v8H7z"/><path fill="#1a73e8" d="M10 11h4v4h-4z"/><path fill="#fff" d="M7 5h10v2H7z"/></svg>
+      </button>
+      <button class="rail-button" aria-label="Keep">
+        <svg class="icon" viewBox="0 0 24 24"><path fill="#fbbc04" d="M6 3h12a2 2 0 0 1 2 2v11l-4 5H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2"/><path fill="#fff" d="M9 17h6v2H9zm0-9h6v6H9z"/></svg>
+      </button>
+      <button class="rail-button" aria-label="Tasks">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#4285f4"/><path fill="none" stroke="#fff" stroke-width="2" d="m7.5 12 2.5 2.5 6-6"/></svg>
+      </button>
+      <button class="rail-button" aria-label="Contacts">
+        <svg class="icon" viewBox="0 0 24 24"><path fill="#1a73e8" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4m0 2c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5"/></svg>
+      </button>
+      <div class="rail-divider"></div>
+      <button class="rail-button rail-plus" aria-label="Get add-ons">＋</button>
+    </aside>
+  </main>
+  <button class="mobile-compose" id="mobileCompose"><svg viewBox="0 0 24 24"><path d="M3 17.3V21h3.7L17.6 10.1l-3.7-3.7zM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>Compose</button>
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="active" aria-label="Mail"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zm2 2v1l7 5 7-5V7zm0 3.5V17h14v-6.5l-7 4.5z"/></svg></button>
+    <button aria-label="Meet"><svg viewBox="0 0 24 24"><path d="M3 5h13v4l5-3v12l-5-3v4H3zm2 2v10h9V7zm11 4v2l3 1.8V9.2z"/></svg></button>
+  </nav>
+
+  <div class="overlay" id="emailOverlay">
+    <article class="dialog">
+      <div class="dialog-header">
+        <button class="round-button close-dialog" aria-label="Close">←</button>
+        <h2 id="emailSubject"></h2>
+        <button class="round-button" aria-label="More">⋮</button>
+      </div>
+      <div class="dialog-body">
+        <strong id="emailSender"></strong>
+        <div class="meta" id="emailMeta"></div>
+        <div id="emailBody"></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="overlay" id="composeOverlay">
+    <article class="dialog compose-dialog">
+      <div class="dialog-header">
+        <h2>New Message</h2>
+        <div class="compose-window-actions">
+          <button class="round-button" id="composeMinimize" aria-label="Minimize"><svg viewBox="0 0 24 24"><path d="M7 16h10"/></svg></button>
+          <button class="round-button" id="composePopout" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M9 5H5v4M15 5h4v4M9 19H5v-4M15 19h4v-4"/></svg></button>
+          <button class="round-button close-dialog" aria-label="Close"><svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+        </div>
+      </div>
+      <div class="compose-fields">
+        <div class="compose-recipient-row"><span class="compose-recipient-label">To</span><input id="composeTo" aria-label="Recipients"><span class="compose-copy-actions"><button id="composeCc">Cc</button><button id="composeBcc">Bcc</button></span></div>
+        <input class="compose-extra-recipient" id="composeCcInput" placeholder="Cc">
+        <input class="compose-extra-recipient" id="composeBccInput" placeholder="Bcc">
+        <input id="composeSubject" placeholder="Subject">
+        <textarea id="composeBody" placeholder="Write a message"></textarea>
+      </div>
+      <div class="compose-toolbar">
+        <button class="send" id="sendButton">Send</button><button class="send-menu" id="sendMenu" aria-label="More send options">⌄</button>
+        <button class="compose-tool" aria-label="Formatting options"><strong style="font-size:17px">Aa</strong></button>
+        <button class="compose-tool" id="composeAttach" aria-label="Attach files"><svg viewBox="0 0 24 24"><path d="M8.5 12.5 14 7a3 3 0 0 1 4.2 4.2l-7.5 7.5a5 5 0 0 1-7.1-7.1l7-7"/><path d="m7 14 7-7"/></svg></button>
+        <input type="file" id="composeFile" hidden multiple>
+        <button class="compose-tool" aria-label="Insert link"><svg viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9M8 17H6a5 5 0 0 1 0-10h3M16 7h2a5 5 0 0 1 0 10h-3"/></svg></button>
+        <button class="compose-tool" aria-label="Insert emoji"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9h.01M15 9h.01"/></svg></button>
+        <button class="compose-tool" aria-label="Insert files with Drive"><svg viewBox="0 0 24 24"><path d="m9 4-6 10 3 5h12l3-5-6-10zM9 4l6 10M15 4 9 14M3 14h18"/></svg></button>
+        <button class="compose-tool" aria-label="Insert photo"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 4.5-4 3 2.5 2.5-2 4 3.5"/></svg></button>
+        <button class="compose-tool" aria-label="Confidential mode"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="13" height="10" rx="1"/><path d="M7 9V7a3.5 3.5 0 0 1 7 0v2M19 14v5M17.5 17.5 19 19l1.5-1.5"/></svg></button>
+        <button class="compose-tool" aria-label="Insert signature"><svg viewBox="0 0 24 24"><path d="m4 17 3.5-.8L18 5.7 15.3 3 4.8 13.5zM13.5 4.8l2.7 2.7M3 20h18"/></svg></button>
+        <button class="compose-tool" aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></button>
+        <span class="compose-toolbar-spacer"></span>
+        <button class="compose-tool" id="composeDiscard" aria-label="Discard draft"><svg viewBox="0 0 24 24"><path d="M6 7h12M9 7V4.5h6V7M8 7l.7 12h6.6L16 7M11 10v6M14 10v6"/></svg></button>
+      </div>
+    </article>
+  </div>
+  <div class="overlay" id="labelOverlay">
+    <article class="dialog" style="width:360px">
+      <div class="dialog-header"><h2>New label</h2></div>
+      <div class="dialog-body new-label-form">
+        <p>Please enter a new label name:</p>
+        <input id="newLabelName" autocomplete="off">
+        <p><label><input type="checkbox"> Nest label under:</label></p>
+        <select style="width:100%;height:38px"><option></option><option>Work</option><option>Personal</option></select>
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px">
+          <button class="filter-chip close-dialog">Cancel</button>
+          <button class="filter-chip" id="createLabelButton">Create</button>
+        </div>
+      </div>
+    </article>
+  </div>
+  <aside class="feature-panel" id="helpPanel" aria-label="Help">
+    <div class="feature-panel-header"><h2>Help</h2><button class="round-button feature-close" aria-label="Close help">×</button></div>
+    <div class="feature-panel-body">
+      <input class="help-search" id="helpSearch" placeholder="Search Gmail help">
+      <div id="helpLinks">
+        <a class="help-link" href="https://support.google.com/mail/answer/8494" target="_blank" rel="noopener">Read and organize email</a>
+        <a class="help-link" href="https://support.google.com/mail/answer/2819488" target="_blank" rel="noopener">Send messages and attachments</a>
+        <a class="help-link" href="https://support.google.com/mail/answer/6594" target="_blank" rel="noopener">Use keyboard shortcuts</a>
+        <a class="help-link" href="https://support.google.com/mail/answer/7190" target="_blank" rel="noopener">Search for messages</a>
+        <a class="help-link" href="https://support.google.com/mail/" target="_blank" rel="noopener">Open Gmail Help Center</a>
+      </div>
+    </div>
+  </aside>
+  <aside class="feature-panel" id="geminiPanel" aria-label="Gemini">
+    <div class="feature-panel-header"><h2>Gemini in Gmail</h2><button class="round-button feature-close" aria-label="Close Gemini">×</button></div>
+    <div class="feature-panel-body">
+      <div class="gemini-welcome"><strong>Hi Bagus, what can I help you with?</strong><p>Ask Gemini to summarize, find, or draft an email.</p></div>
+      <div class="gemini-suggestions">
+        <button class="gemini-suggestion">Summarize recent unread emails</button>
+        <button class="gemini-suggestion">Find the ELCONIKA acceptance letter</button>
+        <button class="gemini-suggestion">Help me write a reply</button>
+      </div>
+      <div class="gemini-compose"><input class="gemini-prompt" id="geminiPrompt" placeholder="Ask Gemini"><button class="gemini-send" id="geminiSend" aria-label="Send to Gemini">➤</button></div>
+    </div>
+  </aside>
+  <div class="overlay" id="upgradeOverlay">
+    <article class="dialog upgrade-dialog">
+      <div class="dialog-header"><h2>Upgrade your Google plan</h2><button class="round-button close-dialog" aria-label="Close">×</button></div>
+      <div class="dialog-body">
+        <p>Get more storage and additional premium features for Gmail, Drive, and Photos.</p>
+        <div class="upgrade-plans">
+          <div class="upgrade-plan"><h3>Google One Basic</h3><strong>100 GB</strong><ul><li>More cloud storage</li><li>Access to Google experts</li><li>Share with your family</li></ul><button class="upgrade-choose" data-plan="Basic 100 GB">Choose Basic</button></div>
+          <div class="upgrade-plan recommended"><h3>Google One Premium</h3><strong>2 TB</strong><ul><li>2 TB cloud storage</li><li>Premium Workspace features</li><li>Enhanced account benefits</li></ul><button class="upgrade-choose" data-plan="Premium 2 TB">Choose Premium</button></div>
+        </div>
+      </div>
+    </article>
+  </div>
+  <section class="pdf-viewer" id="pdfViewer" aria-label="PDF preview">
+    <div class="pdf-viewer-toolbar">
+      <button class="round-button" id="pdfClose" aria-label="Close preview"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <div class="pdf-viewer-file"><span class="pdf-file-badge">PDF</span><span class="pdf-viewer-file-name">ELC-009-010_Letter of Accept_Elconika.pdf</span></div>
+      <div class="pdf-viewer-spacer"></div>
+      <button class="open-docs" id="openWithDocs"><span style="color:#8ab4f8">▣</span> Open with Google Docs <span>⌄</span></button>
+      <div class="pdf-viewer-spacer"></div>
+      <button class="round-button" id="pdfPrint" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M7 9V4.5h10V9M7 17H4.5v-7h15v7H17M7 14h10v6H7z"/></svg></button>
+      <a class="round-button" id="pdfDownload" href="./ELC-009-010_Letter%20of%20Accept_Elconika.pdf" download="ELC-009-010_Letter of Accept_Elconika.pdf" aria-label="Download" title="Download"><svg viewBox="0 0 24 24"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg></a>
+      <button class="round-button" id="pdfMore" aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></button>
+    </div>
+    <div class="pdf-viewer-stage" id="pdfStage"><img class="pdf-page-image" id="pdfPageImage" src="ELC-009-010_Letter-of-Accept-preview.png" alt="ELCONIKA Letter of Acceptance page 1"></div>
+    <div class="pdf-viewer-controls"><span>Page</span><input class="pdf-page-number" value="1" readonly><span>/</span><span>1</span><span class="pdf-control-divider"></span><button id="pdfZoomOut" aria-label="Zoom out">−</button><button id="pdfZoomReset" aria-label="Reset zoom">⌕</button><button id="pdfZoomIn" aria-label="Zoom in">+</button></div>
+  </section>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const TEMPORARY_LOGIN = {
+      email: "angreaputrabagus@gmail.com",
+      code: "Gm#7qL!2vP@9sX$4Za",
+      version: "google-signin-v2",
+      inactivityLimit: 3 * 60 * 60 * 1000,
+      browserKey: "gmailTemporaryBrowserId",
+      sessionKey: "gmailTemporarySession"
+    };
+
+    function getTemporaryBrowserId() {
+      let id = localStorage.getItem(TEMPORARY_LOGIN.browserKey);
+      if (!id) {
+        const randomPart = window.crypto?.randomUUID
+          ? window.crypto.randomUUID()
+          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+        id = `browser-${randomPart}`;
+        localStorage.setItem(TEMPORARY_LOGIN.browserKey, id);
+      }
+      return id;
+    }
+
+    const temporaryBrowserId = getTemporaryBrowserId();
+    const authGate = document.getElementById("authGate");
+    const temporaryLogin = document.getElementById("temporaryLogin");
+    const temporaryLoginError = document.getElementById("temporaryLoginError");
+    const temporaryEmail = document.getElementById("temporaryEmail");
+    const temporaryCode = document.getElementById("temporaryCode");
+    const authEmailStep = document.getElementById("authEmailStep");
+    const authCodeStep = document.getElementById("authCodeStep");
+    const authTitle = document.getElementById("authTitle");
+    const authSubtitle = document.getElementById("authSubtitle");
+    const authAccountChip = document.getElementById("authAccountChip");
+    const authSecondaryAction = document.getElementById("authSecondaryAction");
+    const temporaryLoginButton = document.getElementById("temporaryLoginButton");
+    const authLoadingBar = document.getElementById("authLoadingBar");
+    let temporaryLoginStep = "email";
+    let authIsLoading = false;
+    document.getElementById("temporaryBrowserId").textContent = temporaryBrowserId;
+
+    function setPublicRoute(path, hash = "") {
+      if (location.protocol === "http:" || location.protocol === "https:") {
+        history.replaceState(null, "", `${path}${hash}`);
+      }
+    }
+
+    function mailboxHash(view = "inbox") {
+      const routeNames = {
+        inbox: "inbox", starred: "starred", snoozed: "snoozed", sent: "sent",
+        drafts: "drafts", purchases: "purchases", important: "important",
+        scheduled: "scheduled", all: "all", spam: "spam", trash: "trash",
+        subscriptions: "subscriptions", settings: "settings", "manage-labels": "settings"
+      };
+      return `#${routeNames[view] || "inbox"}`;
+    }
+
+    function runAuthLoading(callback, duration = 680) {
+      if (authIsLoading) return;
+      authIsLoading = true;
+      temporaryLoginButton.disabled = true;
+      temporaryLogin.classList.add("auth-transitioning");
+      authLoadingBar.classList.add("active");
+      window.setTimeout(() => {
+        callback();
+        temporaryLogin.classList.remove("auth-transitioning");
+        authLoadingBar.classList.remove("active");
+        temporaryLoginButton.disabled = false;
+        authIsLoading = false;
+      }, duration);
+    }
+
+    function setTemporaryLoginStep(step) {
+      temporaryLoginStep = step;
+      const enteringCode = step === "code";
+      authEmailStep.classList.toggle("active", !enteringCode);
+      authCodeStep.classList.toggle("active", enteringCode);
+      authAccountChip.hidden = !enteringCode;
+      authTitle.textContent = enteringCode ? "Welcome" : "Temporary sign in";
+      authSubtitle.hidden = enteringCode;
+      authSecondaryAction.textContent = enteringCode ? "Back" : "Create account";
+      temporaryLoginButton.textContent = enteringCode ? "Sign in" : "Next";
+      temporaryLoginError.textContent = "";
+      if (enteringCode) {
+        document.getElementById("authChipEmail").textContent = temporaryEmail.value.trim();
+        window.setTimeout(() => temporaryCode.focus(), 0);
+      } else {
+        temporaryCode.value = "";
+        window.setTimeout(() => temporaryEmail.focus(), 0);
+      }
+    }
+
+    function readTemporarySession() {
+      try {
+        return JSON.parse(localStorage.getItem(TEMPORARY_LOGIN.sessionKey) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function temporarySessionIsValid(session = readTemporarySession()) {
+      return Boolean(
+        session &&
+        session.version === TEMPORARY_LOGIN.version &&
+        session.email === TEMPORARY_LOGIN.email &&
+        session.browserId === temporaryBrowserId &&
+        Number.isFinite(session.lastActivity) &&
+        Date.now() - session.lastActivity < TEMPORARY_LOGIN.inactivityLimit
+      );
+    }
+
+    function showTemporaryLogin(message = "") {
+      localStorage.removeItem(TEMPORARY_LOGIN.sessionKey);
+      document.body.classList.add("auth-locked");
+      authGate.hidden = false;
+      setPublicRoute("/signin/temporary/");
+      temporaryLoginError.textContent = message;
+      temporaryCode.value = "";
+      setTemporaryLoginStep("email");
+      if (message) temporaryLoginError.textContent = message;
+    }
+
+    function openTemporaryMailbox() {
+      document.body.classList.remove("auth-locked");
+      authGate.hidden = true;
+      temporaryLoginError.textContent = "";
+      setPublicRoute("/mail/u/0/", mailboxHash(window.state?.view || "inbox"));
+    }
+
+    function saveTemporaryActivity(force = false) {
+      const session = readTemporarySession();
+      if (!temporarySessionIsValid(session)) {
+        if (!document.body.classList.contains("auth-locked")) {
+          showTemporaryLogin("Sesi berakhir karena tidak ada aktivitas selama 3 jam.");
+        }
+        return;
+      }
+      const now = Date.now();
+      if (force || now - session.lastActivity > 30000) {
+        session.lastActivity = now;
+        localStorage.setItem(TEMPORARY_LOGIN.sessionKey, JSON.stringify(session));
+      }
+    }
+
+    temporaryLogin.addEventListener("submit", event => {
+      event.preventDefault();
+      if (authIsLoading) return;
+      const email = temporaryEmail.value.trim().toLowerCase();
+      if (temporaryLoginStep === "email") {
+        if (email !== TEMPORARY_LOGIN.email) {
+          temporaryLoginError.textContent = "Couldn't find your Google Account.";
+          temporaryEmail.focus();
+          temporaryEmail.select();
+          return;
+        }
+        runAuthLoading(() => setTemporaryLoginStep("code"));
+        return;
+      }
+      const code = temporaryCode.value;
+      if (code.length !== 18 || code !== TEMPORARY_LOGIN.code) {
+        temporaryLoginError.textContent = "Wrong code. Enter the 18-character code and try again.";
+        temporaryCode.focus();
+        temporaryCode.select();
+        return;
+      }
+      runAuthLoading(() => {
+        const now = Date.now();
+        localStorage.setItem(TEMPORARY_LOGIN.sessionKey, JSON.stringify({
+          version: TEMPORARY_LOGIN.version,
+          email,
+          browserId: temporaryBrowserId,
+          loginAt: now,
+          lastActivity: now
+        }));
+        openTemporaryMailbox();
+      }, 850);
+    });
+
+    authAccountChip.addEventListener("click", () => setTemporaryLoginStep("email"));
+    authSecondaryAction.addEventListener("click", () => {
+      if (temporaryLoginStep === "code") {
+        setTemporaryLoginStep("email");
+      } else {
+        temporaryLoginError.textContent = "Account creation is unavailable in this temporary preview.";
+      }
+    });
+    document.getElementById("showTemporaryCode").addEventListener("change", event => {
+      temporaryCode.type = event.target.checked ? "text" : "password";
+    });
+    document.getElementById("forgotEmailButton").addEventListener("click", () => {
+      temporaryLoginError.textContent = "Use the email address assigned to this temporary account.";
+    });
+    document.getElementById("guestModeButton").addEventListener("click", () => {
+      temporaryLoginError.textContent = "This browser already uses an isolated temporary Browser ID.";
+    });
+
+    if (temporarySessionIsValid()) {
+      openTemporaryMailbox();
+      saveTemporaryActivity(true);
+    } else {
+      showTemporaryLogin();
+    }
+
+    ["pointerdown", "keydown", "touchstart", "scroll"].forEach(eventName => {
+      document.addEventListener(eventName, () => {
+        if (!document.body.classList.contains("auth-locked")) saveTemporaryActivity();
+      }, { passive: true });
+    });
+    window.setInterval(() => {
+      if (!document.body.classList.contains("auth-locked") && !temporarySessionIsValid()) {
+        showTemporaryLogin("Sesi berakhir karena tidak ada aktivitas selama 3 jam.");
+      }
+    }, 60000);
+
+    const emails = [
+      { sender:"Steam Team", subject:"New sign in to Steam", preview:'Steam New sign in to Steam From your account "rani1436". Location of sign in: Tabing, Sumatera Barat, ID. Authorized by Steam Guard code from your email.', time:"3:00 PM", category:"Primary", unread:true },
+      { sender:"Steam Support", subject:"Your Steam account: Access from new computer", preview:"It looks like you are trying to log in from a new device. Here is the Steam Guard code you need to access your account.", time:"2:59 PM", category:"Primary" },
+      { sender:"Steam Support", subject:"Recent changes to your Steam account", preview:"Your Steam account password has been successfully changed. We are sending this notice to ensure the privacy and security of your Steam account.", time:"2:56 PM", category:"Primary", unread:true },
+      { sender:"Steam Support", subject:"Steam Account Recovery", preview:"Please click the link below to recover your Steam login credentials. Resume Recovery if you are not trying to recover your account.", time:"2:56 PM", category:"Primary" },
+      { sender:"Microsoft account team", subject:"Microsoft account password change", preview:"Your Microsoft account password changed. If this was you, then you can safely ignore this email.", time:"6:01 AM", category:"Primary", unread:true },
+      { sender:"ELCONIKA Journal", subject:"[ELCONIKA] Letter of Acceptance Artikel ELC-009-010", preview:'Yth. Raihan Zaky Ridwan, dengan senang hati kami informasikan bahwa artikel “Analisis Siklus Rankine sebagai Dasar Konversi Energi pada Pembangkit Listrik Tenaga Uap” telah diterima untuk diterbitkan.', time:"Jul 22", receivedAt:"Jul 22, 2026, 11:34 AM", category:"Primary", loa:true, attachment:"ELC-009-010_Letter of Accept_Elconika.pdf" },
+      { sender:"Google", subject:"Security alert for unlimitedidea12@gmail.com", preview:"This is a copy of a security alert sent to unlimitedidea12@gmail.com. If you don't recognize this activity, review your account.", time:"Jul 22", category:"Updates", unread:true },
+      { sender:"OpenAI", subject:"New sign-in to your OpenAI account", preview:"We noticed a new sign-in to your OpenAI account. App: ChatGPT Web. Time: Jul 22, 2026 at 3:34 AM (WIB).", time:"Jul 22", category:"Updates", unread:true },
+      { sender:"GitHub", subject:"[GitHub] Please verify your device", preview:"A sign in attempt requires further verification because we did not recognize your device. Enter the verification code on the unrecognized device.", time:"Jul 22", category:"Primary" },
+      { sender:"GuitarTuna", subject:"Welcome to the GuitarTuna Community!", preview:"Your guitar's tuned. Now let's play.", time:"Jul 22", category:"Promotions", unread:true },
+      { sender:"Yousician", subject:"Login from a new device", preview:"We detected a login from a new device with your GuitarTuna account. Country: Indonesia. Device: Chrome. Was that you?", time:"Jul 22", category:"Updates", unread:true },
+      { sender:"Rumahweb Indonesia", subject:"Perhatian: Backup Hosting sppinsanipermata.com Dihentikan", preview:"Penggunaan hosting pada domain telah mencapai batas AUP, sehingga backup mingguan otomatis saat ini tidak dapat dilanjutkan.", time:"Jul 21", category:"Updates", unread:true },
+      { sender:"SMART SIAMI", subject:"[SMART SIAMI] Evaluasi Diri Instrumen Dikirim", preview:"Evaluasi Diri Instrumen Dikirim. Ada pembaruan informasi pada sistem audit mutu internal yang memerlukan perhatian Anda.", time:"Jul 20", category:"Updates", unread:true },
+      { sender:"BankBRI", subject:"Notification BRI", preview:"Dana Rp 2.497.500,00 masuk ke rekening ***9532 pada 19/07/26 19:49:05. Jangan memberikan data pribadi kepada siapapun.", time:"Jul 19", category:"Updates", unread:true },
+      { sender:"Bank BRI", subject:"Top Up DANA Berhasil", preview:"Berikut ini adalah informasi transaksi yang telah Anda lakukan di Aplikasi BRImo. Total transaksi Rp2.487.500.", time:"Jul 19", category:"Updates", unread:true },
+      { sender:"Jago", subject:"Kamu telah membayar ke Bubblea Bengkulu", preview:"Terima kasih sudah bertransaksi dengan Jago! Kamu baru saja mengirimkan uang. Berikut rinciannya.", time:"Jul 18", category:"Updates", unread:true },
+      { sender:"BankBRI", subject:"Notification BRI", preview:"Dana Rp 32.000,00 keluar dari rekening ***9532 pada 16/07/26 17:32:28.", time:"Jul 16", category:"Updates", unread:true },
+      { sender:"BankBRI", subject:"Top Up DANA Berhasil", preview:"Informasi transaksi di Aplikasi BRImo. Total transaksi Rp52.000.", time:"Jul 16", category:"Updates", unread:true },
+      { sender:"Rumahweb Technical", subject:"[#GSY-800820]: Permohonan Peningkatan Timeout untuk translate.jdscompany.site", preview:"Please reply above this line. Untuk setting limit silakan mengikuti panduan melalui halaman bantuan Rumahweb.", time:"Jul 16", category:"Primary", unread:true },
+      { sender:"Shopee", subject:"Peringatan Keamanan: Log In Biometrik ke Akun Shopee Telah Diaktifkan", preview:"Metode log in dengan sidik jari ke akun Shopee-mu telah diaktifkan di Pekanbaru, ID.", time:"Jul 16", category:"Updates", unread:true },
+      { sender:"Rumahweb Indonesia", subject:"Perhatian: Backup Hosting sppinsanipermata.com Dihentikan", preview:"Penggunaan hosting telah mencapai batas AUP sehingga backup mingguan otomatis dihentikan.", time:"Jul 14", category:"Updates", unread:true },
+      { sender:"LinkedIn", subject:"Wawan, here's your PIN 757702", preview:"Please verify it's you.", time:"Jul 14", category:"Social", unread:true },
+      { sender:"Rumahweb Indonesia", subject:"Invoice Layanan Rumahweb 5485618", preview:"Kami informasikan bahwa billing telah menerbitkan invoice untuk layanan Rumahweb yang Anda gunakan.", time:"Jul 14", category:"Updates", unread:true },
+      { sender:"Rumahweb Indonesia", subject:"Persyaratan Domain uny-fh.ac.id", preview:"Kami telah menerima pesanan Anda untuk mendaftarkan domain. Silakan klik tombol untuk mengunggah dokumen persyaratan.", time:"Jul 14", category:"Primary", unread:true },
+      { sender:"SMART SIAMI", subject:"[SMART SIAMI] Evaluasi Diri Dikirim", preview:"Evaluasi Diri Dikirim. Ada pembaruan informasi pada sistem audit mutu internal.", time:"Jul 13", category:"Updates" },
+      { sender:"SMART SIAMI", subject:"[SMART SIAMI] Evaluasi Diri Siap Diaudit", preview:"Evaluasi Diri Siap Diaudit. Ringkasan informasi auditee tersedia pada sistem.", time:"Jul 13", category:"Updates", unread:true },
+      { sender:"Aymo AI", subject:"Meet the New Aymo AI", preview:"Completely rebuilt and ready for the future. Explore the latest product updates.", time:"Jul 12", category:"Promotions" },
+      { sender:"LinkedIn", subject:"Update to LinkedIn's Terms of Service", preview:"We're updating our terms and privacy policy. Review what is changing.", time:"Jul 11", category:"Social" },
+      { sender:"Indeed", subject:"Software Developer (Node.js, Remote) @ AMAGI", preview:"A new role matches your job preferences. View the full description and apply.", time:"Jul 10", category:"Promotions" },
+      { sender:"Me", subject:"Project update", preview:"The latest project files have been sent to the team.", time:"Jul 9", category:"Primary", folder:"sent" },
+      { sender:"Draft", subject:"Meeting notes", preview:"Unfinished message — remember to add the final agenda.", time:"Jul 8", category:"Primary", folder:"drafts" }
+    ].map((mail, id) => ({ id, starred:false, selected:false, folder:"inbox", ...mail }));
+    // The first 25 messages mirror the currently visible Primary inbox in the reference screenshot.
+    emails.slice(0, 25).forEach(mail => mail.category = "Primary");
+    emails.forEach(mail => mail.starred = false);
+    [
+      ["Shopee","Pesanan #26072066CUCJV2 Telah Dikirim","Pesanan telah tiba di alamatmu. Beri penilaian di halaman Pesanan Saya.","Jul 23"],
+      ["Bank BRI","Top Up DANA Berhasil","Informasi transaksi yang telah Anda lakukan di Aplikasi BRImo.","Jul 19"],
+      ["Google Play","Tanda Terima Pesanan Google Play Anda","Terima kasih telah melakukan pembelian di Google Play.","May 27"]
+    ].forEach(([sender,subject,preview,time]) => emails.push({id:emails.length,sender,subject,preview,time,category:"Primary",folder:"purchases",starred:false,selected:false}));
+    [
+      ["HitPaw","Halfway There! Don't Miss HitPaw's 6th Anniversary Deals & Gifts","Join our anniversary deals and get exclusive discounts.","Jul 22"],
+      ["Filmora","A smoother caption workflow is here","Refine captions, control text tracks, and polish animated titles.","Jul 16"],
+      ["Epidemic Sound","Level Up Your Content: 50% Off","Secure a full year of unlimited downloads soon.","Jun 26"]
+    ].forEach(([sender,subject,preview,time]) => emails.push({id:emails.length,sender,subject,preview,time,category:"Primary",folder:"spam",starred:false,selected:false}));
+    [
+      ["Canva","Your weekly design inspiration is here","Discover fresh presentation, social media, and portfolio templates selected for you.","Jul 28","Promotions"],
+      ["Figma","Config 2026: Watch every session on demand","Catch up on product announcements, design systems, AI workflows, and community stories.","Jul 28","Promotions"],
+      ["GitHub","Your July developer activity report","You opened 14 pull requests, reviewed 22 changes, and contributed to 8 repositories.","Jul 27","Updates"],
+      ["Spotify","Your Release Radar has landed","A fresh playlist featuring new music from artists you follow is ready.","Jul 27","Promotions"],
+      ["Netflix","New this week: stories picked for you","Continue your watchlist and explore this week's most popular films and series.","Jul 26","Promotions"],
+      ["Shopee","Flash Sale tengah malam dimulai!","Voucher gratis ongkir dan diskon hingga 70% sudah tersedia untuk akunmu.","Jul 26","Promotions"],
+      ["Tokopedia","Pembayaran pesanan berhasil","Pembayaran untuk pesanan INV/20260726/MPL/001 telah kami terima.","Jul 26","Updates"],
+      ["Traveloka","Your Jakarta trip is confirmed","Booking confirmed. Your itinerary and check-in details are ready.","Jul 25","Updates"],
+      ["LinkedIn","Bagus, 18 people viewed your profile","See where your viewers work and which searches helped them find you.","Jul 25","Social"],
+      ["Indeed","5 new backend developer jobs for you","New remote and hybrid roles match your experience with Node.js and cloud services.","Jul 25","Promotions"],
+      ["Adobe Creative Cloud","Create faster with the latest Firefly updates","Generate, edit, and deliver creative work with new commercially safe AI tools.","Jul 24","Promotions"],
+      ["Notion","Your workspace weekly digest","Seven pages were updated and three new comments mention you.","Jul 24","Updates"],
+      ["Slack","Weekly activity from your workspace","You have 12 unread messages and 4 mentions across three channels.","Jul 24","Updates"],
+      ["Google Calendar","Reminder: Product design review","This event starts tomorrow at 10:00 AM. Video meeting details are included.","Jul 23","Updates"],
+      ["Dropbox","Your shared folder has new activity","Five files were added to Project Aurora and two comments need your attention.","Jul 23","Updates"],
+      ["Duolingo","Your 21-day streak is waiting","Complete one quick lesson today to keep your learning streak alive.","Jul 22","Promotions"],
+      ["Coursera","Recommended courses for your next career step","Explore practical programs in cloud engineering, AI, and product management.","Jul 21","Promotions"],
+      ["Grab","Your July ride summary","You completed 9 rides and saved Rp48.000 with GrabUnlimited benefits.","Jul 21","Updates"],
+      ["Gojek","GO-PAY transaction receipt","Your payment of Rp76.500 was completed successfully.","Jul 20","Updates"],
+      ["Cloudflare","Weekly security summary for your domain","Cloudflare blocked 1,284 suspicious requests and served 92% of traffic from cache.","Jul 20","Updates"],
+      ["DigitalOcean","Your monthly invoice is available","Invoice #DO-728410 for cloud services is ready to review.","Jul 19","Updates"],
+      ["Vercel","Deployment completed successfully","Production deployment for portfolio-web finished in 42 seconds.","Jul 19","Updates"],
+      ["AWS","Your AWS cost and usage report","Estimated month-to-date charges are available with recommendations to reduce cost.","Jul 18","Updates"],
+      ["Medium Daily Digest","Stories selected for Bagus","Read today's best ideas about software architecture, design, and productivity.","Jul 18","Promotions"],
+      ["YouTube","New videos from channels you follow","Eight new videos were published in your subscriptions this week.","Jul 17","Social"]
+    ].forEach(([sender,subject,preview,time,category], index) => emails.push({id:emails.length,sender,subject,preview,time,category,folder:"inbox",unread:index<9,starred:false,selected:false}));
+    const generatedMailSources = [
+      ["Microsoft 365","What's new in Microsoft 365","Explore new productivity features across Word, Excel, and Teams.","Promotions"],
+      ["Google Cloud","Your weekly Google Cloud report","Review project health, billing insights, and security recommendations.","Updates"],
+      ["Amazon","Recommendations inspired by your shopping","New products and deals were selected from your recent activity.","Promotions"],
+      ["eBay","Items on your watchlist are ending soon","Several watched items have new bids or will end today.","Promotions"],
+      ["PayPal","Your monthly account statement","Review recent payments, refunds, and account balance activity.","Updates"],
+      ["Wise","Your transfer has been completed","The recipient received your international transfer successfully.","Updates"],
+      ["GitLab","Pipeline status for your projects","Your latest pipelines, merge requests, and security scans are summarized.","Updates"],
+      ["Atlassian","Your Jira weekly digest","Issues moved forward and teammates mentioned you in project updates.","Updates"],
+      ["Trello","What happened on your boards this week","Cards were completed, assigned, and moved across your active boards.","Updates"],
+      ["Zoom","Your meeting summary is ready","Review attendance, duration, recordings, and shared meeting assets.","Updates"],
+      ["Microsoft Teams","You have new activity in Teams","Catch up on mentions, replies, and shared documents from your teams.","Social"],
+      ["Discord","Highlights from your communities","See popular conversations and events from servers you follow.","Social"],
+      ["Reddit","Top posts selected for you","Communities you joined have new discussions worth checking out.","Social"],
+      ["X","See what's happening today","Trending conversations and account activity are waiting for you.","Social"],
+      ["Instagram","You have new activity","Friends shared new posts, stories, and messages since your last visit.","Social"],
+      ["Pinterest","Fresh ideas for your boards","Discover new design, workspace, travel, and technology inspiration.","Promotions"],
+      ["Udemy","Courses picked for your goals","Popular courses in development and design are available at a discount.","Promotions"],
+      ["Khan Academy","Your learning progress report","You completed new skills and maintained steady weekly progress.","Updates"],
+      ["Proton","Your privacy and security report","Review blocked trackers, sign-in activity, and protection recommendations.","Updates"],
+      ["NordVPN","Monthly protection report","See threats blocked and locations used across your protected devices.","Updates"],
+      ["Namecheap","Domain and hosting account update","Review renewal dates and recommended security settings for your domains.","Updates"],
+      ["Hostinger","Website performance summary","Your website uptime, traffic, and optimization opportunities are ready.","Updates"],
+      ["Samsung","Discover what's new for Galaxy","Explore the latest Galaxy features, tips, and exclusive member offers.","Promotions"],
+      ["Xiaomi","Your Mi account newsletter","New devices, software features, and community highlights are here.","Promotions"]
+    ];
+    const generatedSubjects = [
+      "Weekly update and account highlights",
+      "Important information for your account",
+      "Your personalized recommendations are ready",
+      "Monthly summary and next steps"
+    ];
+    generatedMailSources.forEach((source, sourceIndex) => {
+      generatedSubjects.forEach((variant, variantIndex) => {
+        const [sender, baseSubject, preview, category] = source;
+        const day = ((sourceIndex * 4 + variantIndex) % 28) + 1;
+        const month = ["Jun","May","Apr","Mar"][(sourceIndex + variantIndex) % 4];
+        emails.push({
+          id: emails.length,
+          sender,
+          subject: variantIndex === 0 ? baseSubject : `${variant} — ${sender}`,
+          preview: `${preview} ${["Open the full report for details.","No action is required unless you notice something unusual.","This update was prepared based on your preferences.","Manage your notification settings at any time."][variantIndex]}`,
+          time: `${month} ${day}`,
+          category: "Primary",
+          folder: "inbox",
+          unread: (sourceIndex + variantIndex) % 5 === 0,
+          starred: (sourceIndex * 4 + variantIndex) % 23 === 0,
+          selected: false
+        });
+      });
+    });
+
+    const state = { category:"Primary", view:"inbox", query:"", allConversationsSelected:false, openEmail:null };
+    if (!document.body.classList.contains("auth-locked")) {
+      const [routeView, routeMessage] = location.hash.replace(/^#/, "").split("/");
+      const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
+      if (supportedViews.has(routeView)) state.view = routeView === "settings" ? "manage-labels" : routeView;
+      if (routeMessage && Number.isFinite(Number(routeMessage))) state.openEmail = Number(routeMessage);
+      setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+    }
+    const mailList = document.getElementById("mailList");
+    const toast = document.getElementById("toast");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+    }
+
+    function visibleEmails() {
+      const query = state.query.toLowerCase();
+      return emails.filter(mail => {
+        const folderMatch = state.view === "all" ? true :
+          state.view === "important" ? (mail.unread && mail.folder === "inbox") :
+          state.view === "starred" ? mail.starred :
+          state.view === "inbox" ? mail.folder === "inbox" :
+          mail.folder === state.view;
+        const categoryMatch = state.view !== "inbox" || mail.category === state.category;
+        const queryMatch = !query || `${mail.sender} ${mail.subject} ${mail.preview}`.toLowerCase().includes(query);
+        return folderMatch && categoryMatch && queryMatch;
+      });
+    }
+
+    const viewQueries = {
+      starred:"is:starred", sent:"in:sent", purchases:"category:purchases",
+      important:"is:important", scheduled:"in:scheduled", all:"in:anywhere",
+      spam:"in:spam", trash:"in:trash", snoozed:"in:snoozed"
+    };
+
+    function renderSpecialPage() {
+      if (state.view === "subscriptions") {
+        const subscriptions = [
+          ["I","Indeed","donotreply@match.indeed.com","20+ emails recently","#f57c00"],
+          ["J","Jago","info@jago.com","10–20 emails recently","#9b7164"],
+          ["A","Adobe for Photographers","mail@mail.adobe.com","10 or fewer emails recently","#7e57c2"],
+          ["A","Aymo AI","hello@aymo.ai","10 or fewer emails recently","#7e57c2"],
+          ["C","ChatGPT","noreply@email.openai.com","10 or fewer emails recently","#ec407a"],
+          ["F","Figma","announcements@figma.com","10 or fewer emails recently","#0097a7"],
+          ["G","Google","no-reply@google.com","10 or fewer emails recently","#1976d2"],
+          ["M","Microsoft account team","account-security-noreply@accountprotection.microsoft.com","10 or fewer emails recently","#ab47bc"],
+          ["S","Steam","noreply@steampowered.com","10 or fewer emails recently","#d84315"]
+        ];
+        mailList.innerHTML = `<div class="special-page"><h2>Subscriptions</h2><p style="font-size:12px;color:#5f6368">When you unsubscribe, it can take senders a few days to stop sending messages</p><table class="subscriptions-table">${subscriptions.map(row => `<tr><td><span class="sender-dot" style="background:${row[4]}">${row[0]}</span><strong>${row[1]}</strong></td><td>${row[2]}</td><td>${row[3]}</td><td style="text-align:right"><button class="unsubscribe">Unsubscribe</button></td></tr>`).join("")}</table></div>`;
+        mailList.querySelectorAll(".unsubscribe").forEach(button => button.addEventListener("click", () => { button.textContent = "Unsubscribed"; showToast("Subscription removed"); }));
+        return true;
+      }
+      if (state.view === "manage-labels") {
+        const labels = ["Inbox","Starred","Snoozed","Important","Sent","Scheduled","Drafts","All Mail","Spam","Trash"];
+        const tabs = ["General","Labels","Inbox","Accounts and Import","Filters and Blocked Addresses","Forwarding and POP/IMAP","Add-ons","Chat and Meet","Advanced","Offline","Themes"];
+        const labelPanel = `<table class="settings-table"><tr class="section"><th>System labels</th><th>Show in label list</th><th>Show in IMAP</th></tr>${labels.map(label => `<tr><td>${label}</td><td><span class="setting-link">show</span><span class="setting-link">hide</span></td><td><label><input type="checkbox" checked> Show in IMAP</label></td></tr>`).join("")}<tr class="section"><th>Categories</th><th>Show in label list</th><th>Show in message list</th></tr>${["Purchases","Social","Updates","Forums","Promotions"].map(label => `<tr><td>${label}</td><td><span class="setting-link">show</span><span class="setting-link">hide</span></td><td><span class="setting-link">show</span><span class="setting-link">hide</span></td></tr>`).join("")}</table>`;
+        const panels = {
+          "General": `<table class="settings-table"><tr class="section"><th colspan="2">General settings</th></tr><tr><td>Language</td><td><select><option>English (US)</option><option>Bahasa Indonesia</option></select></td></tr><tr><td>Phone numbers</td><td><select><option>Indonesia</option></select></td></tr><tr><td>Default text style</td><td><button class="filter-chip">Sans Serif</button> &nbsp; <strong>B</strong> &nbsp; <em>I</em> &nbsp; <u>U</u></td></tr><tr><td>Conversation view</td><td><label><input type="radio" checked name="conversation"> On</label> &nbsp; <label><input type="radio" name="conversation"> Off</label></td></tr><tr><td>Desktop notifications</td><td><label><input type="checkbox"> New mail notifications on</label></td></tr><tr><td>Button labels</td><td><label><input type="radio" checked name="buttons"> Icons</label> &nbsp; <label><input type="radio" name="buttons"> Text</label></td></tr></table>`,
+          "Labels": labelPanel,
+          "Inbox": `<table class="settings-table"><tr class="section"><th colspan="2">Inbox settings</th></tr><tr><td>Inbox type</td><td><select><option>Default</option><option>Important first</option><option>Unread first</option></select></td></tr><tr><td>Categories</td><td>${["Primary","Promotions","Social","Updates"].map(x=>`<label style="margin-right:16px"><input type="checkbox" checked> ${x}</label>`).join("")}</td></tr><tr><td>Reading pane</td><td><label><input type="radio" checked name="pane"> No split</label> &nbsp; <label><input type="radio" name="pane"> Right of inbox</label></td></tr><tr><td>Importance markers</td><td><label><input type="checkbox" checked> Show markers</label></td></tr></table>`,
+          "Accounts and Import": `<table class="settings-table"><tr class="section"><th colspan="2">Account settings</th></tr><tr><td>Change account settings</td><td><span class="setting-link">Change password</span><span class="setting-link">Google Account settings</span></td></tr><tr><td>Send mail as</td><td><strong>angreaputrabagus@gmail.com</strong><br><span class="setting-link">Add another email address</span></td></tr><tr><td>Check mail from other accounts</td><td><span class="setting-link">Add a mail account</span></td></tr><tr><td>Import mail and contacts</td><td><span class="setting-link">Import mail and contacts</span></td></tr></table>`,
+          "Filters and Blocked Addresses": `<table class="settings-table"><tr class="section"><th>Filters</th><th>Actions</th></tr><tr><td>from:(noreply@github.com)</td><td><span class="setting-link">edit</span><span class="setting-link">delete</span></td></tr><tr><td>subject:(Security alert)</td><td><span class="setting-link">edit</span><span class="setting-link">delete</span></td></tr><tr><td colspan="2"><button class="filter-chip">Create a new filter</button> <button class="filter-chip">Import filters</button></td></tr><tr class="section"><th colspan="2">Blocked addresses</th></tr><tr><td colspan="2">No blocked addresses.</td></tr></table>`,
+          "Forwarding and POP/IMAP": `<table class="settings-table"><tr class="section"><th colspan="2">Forwarding</th></tr><tr><td>Forwarding</td><td><button class="filter-chip">Add a forwarding address</button></td></tr><tr class="section"><th colspan="2">POP download</th></tr><tr><td>Status</td><td><label><input type="radio" name="pop"> Enable POP</label> &nbsp; <label><input type="radio" checked name="pop"> Disable POP</label></td></tr><tr class="section"><th colspan="2">IMAP access</th></tr><tr><td>Status</td><td><label><input type="radio" checked name="imap"> Enable IMAP</label> &nbsp; <label><input type="radio" name="imap"> Disable IMAP</label></td></tr></table>`,
+          "Add-ons": `<table class="settings-table"><tr class="section"><th>Installed add-ons</th><th>Status</th></tr><tr><td>Google Calendar</td><td>Enabled</td></tr><tr><td>Google Keep</td><td>Enabled</td></tr><tr><td>Google Tasks</td><td>Enabled</td></tr><tr><td colspan="2"><button class="filter-chip">Get add-ons</button></td></tr></table>`,
+          "Chat and Meet": `<table class="settings-table"><tr class="section"><th colspan="2">Chat</th></tr><tr><td>Chat position</td><td><label><input type="radio" checked name="chat"> Left side</label> &nbsp; <label><input type="radio" name="chat"> Right side</label></td></tr><tr class="section"><th colspan="2">Meet</th></tr><tr><td>Meet section</td><td><label><input type="checkbox" checked> Show the Meet section in the main menu</label></td></tr><tr><td>Quick access</td><td><label><input type="checkbox" checked> Allow quick access to meetings</label></td></tr></table>`,
+          "Advanced": `<table class="settings-table"><tr class="section"><th>Feature</th><th>Status</th></tr>${["Auto-advance","Templates","Custom keyboard shortcuts","Unread message icon","Multiple Inboxes"].map((x,i)=>`<tr><td>${x}</td><td><label><input type="radio" ${i<2?"checked":""} name="advanced${i}"> Enable</label> &nbsp; <label><input type="radio" ${i>=2?"checked":""} name="advanced${i}"> Disable</label></td></tr>`).join("")}</table>`,
+          "Offline": `<table class="settings-table"><tr class="section"><th colspan="2">Offline mail</th></tr><tr><td>Enable offline mail</td><td><label><input type="checkbox"> Enable offline mail</label></td></tr><tr><td>Sync settings</td><td><select><option>Store emails from last 30 days</option><option>7 days</option><option>90 days</option></select></td></tr><tr><td>Security</td><td><label><input type="radio" checked name="offline"> Keep offline data on my computer</label></td></tr></table>`,
+          "Themes": `<div style="max-width:900px"><h3>Pick your theme</h3><div style="display:grid;grid-template-columns:repeat(5,120px);gap:14px">${["#f8fafd","#d3e3fd","#c4eed0","#ffe2dd","#f6e6ff","#202124","#263238","#fff3cd","#e8eaed","#c2e7ff"].map((color,i)=>`<button class="filter-chip" style="height:82px;background:${color};border:${i===0?"3px solid #0b57d0":"1px solid #747775"}"></button>`).join("")}</div></div>`
+        };
+        mailList.innerHTML = `<div class="special-page"><h2>Settings</h2><div class="settings-tabs">${tabs.map(tab=>`<button class="settings-tab ${tab==="Labels"?"active":""}" data-settings-tab="${tab}" style="border-top:0;border-right:0;border-left:0;background:transparent">${tab}</button>`).join("")}</div><div id="settingsPanel">${labelPanel}</div></div>`;
+        mailList.querySelectorAll("[data-settings-tab]").forEach(button => button.addEventListener("click", () => {
+          mailList.querySelectorAll("[data-settings-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+          document.getElementById("settingsPanel").innerHTML = panels[button.dataset.settingsTab];
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    function updateViewChrome() {
+      const content = document.querySelector(".content");
+      const special = Boolean(state.openEmail) || ["subscriptions","manage-labels"].includes(state.view);
+      content.classList.toggle("special-mode", special);
+      content.classList.toggle("no-tabs", state.view !== "inbox");
+      const chips = document.getElementById("filterChips");
+      chips.classList.toggle("show", !special && ["starred","sent","purchases","important","all","spam"].includes(state.view));
+      const notice = document.getElementById("viewNotice");
+      const notices = {
+        scheduled:"Messages in Scheduled will be sent at their scheduled time.",
+        spam:"Messages that have been in Spam more than 30 days will be automatically deleted.  Delete all spam messages now",
+        trash:"Messages that have been in Trash more than 30 days will be automatically deleted.",
+        snoozed:""
+      };
+      notice.textContent = notices[state.view] || "";
+      notice.classList.toggle("show", Object.prototype.hasOwnProperty.call(notices, state.view) && Boolean(notices[state.view]));
+    }
+
+    function senderAddress(mail) {
+      const known = {
+        "ELCONIKA Journal":"elconika.unhasy@gmail.com",
+        "Microsoft account team":"account-security-noreply@accountprotection.microsoft.com",
+        "Steam Team":"noreply@steampowered.com",
+        "Steam Support":"noreply@steampowered.com",
+        "Rumahweb Indonesia":"sales@rumahweb.com",
+        "Rumahweb Technical":"teknis@rumahweb.com",
+        "Google":"no-reply@accounts.google.com",
+        "OpenAI":"noreply@email.openai.com",
+        "GitHub":"noreply@github.com",
+        "LinkedIn":"messages-noreply@linkedin.com",
+        "Bank BRI":"noreply@bri.co.id",
+        "BankBRI":"noreply@bri.co.id",
+        "Shopee":"info@shopee.co.id"
+      };
+      return known[mail.sender] || `noreply@${mail.sender.toLowerCase().replace(/[^a-z0-9]+/g,"") || "mail"}.com`;
+    }
+
+    function buildEmailBody(mail) {
+      const subject = escapeHtml(mail.subject);
+      const preview = escapeHtml(mail.preview);
+      if (mail.loa) return `
+        <div style="max-width:720px">
+          <p>Yth. Saudara <strong>Raihan Zaky Ridwan</strong>,</p>
+          <p>Salam hormat,</p>
+          <p>Dengan senang hati kami informasikan bahwa berdasarkan keputusan Tim Redaksi, artikel Saudara dengan judul:</p>
+          <p style="margin:20px 0;padding:16px 18px;border-left:4px solid #0b57d0;background:#f2f6fc;font-size:16px"><strong>Analisis Siklus Rankine sebagai Dasar Konversi Energi pada Pembangkit Listrik Tenaga Uap</strong></p>
+          <p>telah <strong>diterima untuk diterbitkan</strong> pada <em>ELCONIKA: Jurnal Teknik Elektro</em>, Volume 5 Nomor 3, September 2026.</p>
+          <p>Surat keterangan penerimaan resmi dengan nomor <strong>003/VOL.005/ELC/2026</strong> kami lampirkan pada email ini. Silakan mengunduh dan menyimpan dokumen tersebut untuk keperluan administrasi.</p>
+          <p>Informasi mengenai proses penyuntingan, pemeriksaan naskah akhir, dan jadwal penerbitan berikutnya akan disampaikan melalui email atau sistem jurnal.</p>
+          <p>Terima kasih atas kontribusi Saudara kepada ELCONIKA.</p>
+          <p>Hormat kami,<br><strong>Tim Redaksi ELCONIKA: Jurnal Teknik Elektro</strong><br>Program Studi Teknik Elektro, Fakultas Teknik<br>Universitas Hasyim Asy’ari Tebuireng Jombang<br><a href="mailto:elconika.unhasy@gmail.com">elconika.unhasy@gmail.com</a><br><a href="https://ejournal.unhasy.ac.id/index.php/Elconika" target="_blank" rel="noopener">ejournal.unhasy.ac.id/index.php/Elconika</a></p>
+          <div class="attachment-section">
+            <div class="attachment-summary"><strong>One attachment</strong><span class="dot">·</span><span>Scanned by Gmail ⓘ</span></div>
+            <div class="mail-attachment" data-open-pdf role="button" tabindex="0" aria-label="Open ELC-009-010 Letter of Accept PDF">
+              <span class="attachment-preview"><img src="ELC-009-010_Letter-of-Accept-preview.png" alt="Preview halaman pertama Letter of Acceptance ELCONIKA"></span>
+              <span class="attachment-footer"><span class="attachment-pdf">PDF</span><span class="attachment-info"><span class="attachment-name">ELC-009-010_Letter of Accept_Elconika.pdf</span><span class="attachment-meta">283 KB</span></span></span>
+              <span class="attachment-hover-actions">
+                <a class="attachment-action" href="./ELC-009-010_Letter%20of%20Accept_Elconika.pdf" download="ELC-009-010_Letter of Accept_Elconika.pdf" data-pdf-download title="Download"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7zm-14 9v3h14v-3z"/></svg></a>
+                <a class="attachment-action" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener" data-drive-link title="Add to Drive"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2 2 14l3 5h9.1A5.5 5.5 0 1 0 17 10.35L12.2 2zm1.15 2h.9l3.55 6.15a5.55 5.55 0 0 0-1.35 1.25L9.7 5.25zM5.3 17l-1-1.7 4.25-7.35 2.45 4.2A5.45 5.45 0 0 0 10.55 17zm13.2 3a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7m.75-5.75h-1.5v1.5h-1.5v1.5h1.5v1.5h1.5v-1.5h1.5v-1.5h-1.5z"/></svg></a>
+              </span>
+              <span class="attachment-corner"></span>
+            </div>
+          </div>
+        </div>`;
+      if (/Microsoft/i.test(mail.sender)) return `<div class="message-card"><div style="color:#5f6368">Microsoft account</div><h1>Your password changed</h1><p>The password for the Microsoft account <a>an***s@gmail.com</a> was just changed.</p><p>If this was you, then you can safely ignore this email.</p><p>If this wasn't you, your account may have been compromised. Please follow these steps:</p><ol><li><a>Reset your password.</a></li><li><a>Learn how to make your account more secure.</a></li></ol><p>To opt out or change where you receive security notifications, <a>click here</a>.</p><p>Thanks,<br>The Microsoft account team</p><p><a>Privacy Statement</a></p></div>`;
+      if (/Steam/i.test(mail.sender)) return `<div class="message-card dark"><div style="font-size:28px;margin-bottom:24px">◉ STEAM</div><h2>Dear rani1436,</h2><h2>${subject}</h2><p>${preview}</p><hr style="border-color:#5f6368"><p><strong>If you did not authorize this change,</strong> please change your Steam password and consider changing your email password as well.</p><p>If you are unable to access your account, use the <a style="color:#67a9e8">account recovery link</a> for assistance.</p><p style="margin-top:38px">Cheers,<br>The Steam Team</p></div><p>This notification has been sent to the email address associated with your Steam account.</p>`;
+      if (/Rumahweb/i.test(mail.sender)) return `<p>Salam,</p><p>${preview}</p><p>Kondisi ini menyebabkan layanan tidak dapat berjalan optimal. Kami merekomendasikan agar Anda melakukan pemeriksaan penggunaan resource dan melakukan upgrade paket bila diperlukan.</p><p>Untuk panduan selengkapnya, silakan membaca artikel berikut: <a>https://www.rumahweb.com/journal/panduan-layanan</a></p><p>Jika Anda membutuhkan bantuan, silakan membalas email ini. Tim kami dengan senang hati siap membantu Anda.</p><p>Hormat kami,<br><strong>Customer Service Rumahweb Indonesia</strong><br>Yogyakarta, Indonesia<br><a>info@rumahweb.com</a></p>`;
+      if (/Bank|BRI|Jago/i.test(mail.sender)) return `<div class="message-card"><h2>${subject}</h2><p>Halo BAGUS ANDREA PUTRA,</p><p>${preview}</p><p>Transaksi telah tercatat pada sistem kami. Silakan periksa kembali detail transaksi melalui aplikasi resmi.</p><p><strong>Jangan pernah memberikan PIN, password, maupun kode OTP kepada siapa pun, termasuk petugas bank.</strong></p><p>Terima kasih telah menggunakan layanan kami.</p></div>`;
+      if (mail.sender === "Google") return `<div class="message-card"><div style="font-size:24px;color:#4285f4;margin-bottom:20px">Google</div><h2>${subject}</h2><p>${preview}</p><p>Kami mengirimkan email ini untuk memastikan bahwa aktivitas tersebut memang dilakukan oleh Anda.</p><p><a>Review security activity</a></p><p>Anda juga dapat membuka halaman Security Checkup untuk meninjau perangkat dan aktivitas terbaru.</p></div>`;
+      const receiptBrands = {
+        "Tokopedia":["#03ac0e","INV/20260726/MPL/001","Rp286.500"],
+        "Gojek":["#00880d","GJK-72650114","Rp76.500"],
+        "Grab":["#00b14f","GRB-JUL-2026","Rp48.000"],
+        "DigitalOcean":["#0080ff","DO-728410","$24.00"],
+        "AWS":["#ff9900","AWS-JUL-2026","$18.42"]
+      };
+      if (receiptBrands[mail.sender]) {
+        const [color,number,total] = receiptBrands[mail.sender];
+        return `<div class="brand-email" style="--brand:${color}"><div class="brand-hero"><div class="brand-logo-text">${escapeHtml(mail.sender)}</div><h2>${subject}</h2><p>${preview}</p></div><div class="brand-content"><h3>Transaction details</h3><table class="receipt"><tr><td>Reference</td><td>${number}</td></tr><tr><td>Date</td><td>${escapeHtml(mail.time)}, 2026</td></tr><tr><td>Payment status</td><td style="color:#188038">Successful</td></tr><tr><td>Total</td><td>${total}</td></tr></table><a class="brand-cta">View details</a><p style="color:#5f6368;font-size:12px">This is an automated receipt. Keep it for your records and contact support if you notice anything unusual.</p></div></div>`;
+      }
+      const brandStyles = {
+        "Canva":["#7d2ae8","Design anything. Publish anywhere.","Open your designs"],
+        "Figma":["#a259ff","Ideas become products when teams create together.","Watch Config"],
+        "GitHub":["#24292f","Your development month at a glance.","View activity"],
+        "Spotify":["#1db954","Fresh music, selected for you.","Play Release Radar"],
+        "Netflix":["#e50914","Your next story is waiting.","Explore what's new"],
+        "Shopee":["#ee4d2d","Big savings are live now.","Claim vouchers"],
+        "Traveloka":["#1976d2","Everything is ready for your journey.","View itinerary"],
+        "LinkedIn":["#0a66c2","Your professional network is growing.","See profile views"],
+        "Indeed":["#2557a7","Your next opportunity could be here.","View matching jobs"],
+        "Adobe Creative Cloud":["#eb1000","Create at the speed of imagination.","Explore new tools"],
+        "Notion":["#111111","Everything your team changed this week.","Open workspace"],
+        "Slack":["#611f69","Stay in sync with your team.","View mentions"],
+        "Google Calendar":["#4285f4","Don't miss your upcoming event.","Open Calendar"],
+        "Dropbox":["#0061ff","Your team's files keep moving.","Review activity"],
+        "Duolingo":["#58cc02","Keep your learning streak alive!","Start a lesson"],
+        "Coursera":["#0056d2","Build skills for your next chapter.","Explore courses"],
+        "Cloudflare":["#f48120","A safer, faster week for your domain.","View analytics"],
+        "Vercel":["#111111","Your production deployment is live.","View deployment"],
+        "Medium Daily Digest":["#111111","Ideas worth reading, selected for you.","Start reading"],
+        "YouTube":["#ff0000","Catch up with creators you love.","Watch now"]
+      };
+      if (brandStyles[mail.sender]) {
+        const [color,headline,cta] = brandStyles[mail.sender];
+        return `<div class="brand-email" style="--brand:${color}"><div class="brand-hero"><div class="brand-logo-text">${escapeHtml(mail.sender)}</div><h2>${headline}</h2><p>${preview}</p></div><div class="brand-content"><h3>${subject}</h3><p>Hi Bagus, we prepared this update based on your recent activity and preferences.</p><div class="feature-grid"><div class="feature-box"><strong>New</strong>Personalized picks</div><div class="feature-box"><strong>24/7</strong>Available anytime</div><div class="feature-box"><strong>For you</strong>Curated content</div></div><a class="brand-cta">${cta}</a><p>Thanks for being part of the ${escapeHtml(mail.sender)} community. We hope this update helps you get more from your account.</p><p style="color:#5f6368;font-size:12px">You received this email because notifications are enabled for your account. <a>Manage preferences</a> · <a>Unsubscribe</a></p></div></div>`;
+      }
+      const palette = ["#0b57d0","#6f42c1","#00897b","#d84315","#3949ab","#7b1fa2","#0277bd","#2e7d32"];
+      const brandColor = palette[[...mail.sender].reduce((sum,char)=>sum+char.charCodeAt(0),0) % palette.length];
+      return `<div class="brand-email" style="--brand:${brandColor}"><div class="brand-hero"><div class="brand-logo-text">${escapeHtml(mail.sender)}</div><h2>${subject}</h2><p>${preview}</p></div><div class="brand-content"><p>Hello Bagus,</p><p>This update was prepared from your recent account activity and preferences. Review the highlights below and open your account for complete details.</p><div class="feature-grid"><div class="feature-box"><strong>01</strong>New update</div><div class="feature-box"><strong>Safe</strong>Account protected</div><div class="feature-box"><strong>Ready</strong>Details available</div></div><a class="brand-cta">View full update</a><p>If you did not request this action or do not recognize the activity, please contact our support team.</p><p>Thank you,<br><strong>${escapeHtml(mail.sender)} Team</strong></p><p style="color:#5f6368;font-size:12px">This automated email was sent to your registered address. <a>Notification settings</a> · <a>Unsubscribe</a></p></div></div>`;
+    }
+
+    function renderEmailReader(mail) {
+      const address = senderAddress(mail);
+      const messagePosition = Math.max(1, emails.findIndex(item => item.id === mail.id) + 1);
+      const isIndonesian = Boolean(mail.loa) || /Rumahweb|BRI|Jago|SMART|Shopee|Tokopedia/i.test(mail.sender);
+      mailList.innerHTML = `<article class="mail-reader">
+        <div class="reader-toolbar">
+          <button class="round-button" id="readerBack" aria-label="Back" title="Back"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+          <button class="round-button" data-reader-action="Archive" aria-label="Archive" title="Archive"><svg viewBox="0 0 24 24"><path d="M4.5 8.5h15v11h-15zM3.5 4.5h17v4h-17zM12 10v5M9.5 12.5 12 15l2.5-2.5"/></svg></button>
+          <button class="round-button" data-reader-action="Report spam" aria-label="Report spam" title="Report spam"><svg viewBox="0 0 24 24"><path d="m8 3.5-4.5 4.6v7.8L8 20.5h8l4.5-4.6V8.1L16 3.5zM12 7.5v5M12 16.2v.3"/></svg></button>
+          <button class="round-button" data-reader-action="Delete" aria-label="Delete" title="Delete"><svg viewBox="0 0 24 24"><path d="M5.5 7h13M9 7V4.5h6V7M7.5 7l.7 12.5h7.6L16.5 7M10 10.5v5.5M14 10.5v5.5"/></svg></button>
+          <span class="toolbar-divider"></span>
+          <button class="round-button" data-reader-action="Mark unread" aria-label="Mark unread" title="Mark unread"><svg viewBox="0 0 24 24"><path d="M3.5 6.5h17v12h-17zM4 7l8 6 8-6"/><circle cx="18.5" cy="5" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+          <button class="round-button" data-reader-action="Move to" aria-label="Move to" title="Move to"><svg viewBox="0 0 24 24"><path d="M3.5 6.5h6l2-2h9v15h-17zM9.5 12h6M13 9.5l2.5 2.5-2.5 2.5"/></svg></button>
+          <button class="round-button" data-reader-action="More options" aria-label="More options" title="More"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></button>
+          <div class="toolbar-spacer"></div>
+          <span class="reader-toolbar-count">${messagePosition} of 2,430</span>
+          <button class="round-button" data-reader-action="Newer" aria-label="Newer" title="Newer"><svg viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></button>
+          <button class="round-button" data-reader-action="Older" aria-label="Older" title="Older"><svg viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></svg></button>
+          <button class="round-button" data-reader-action="Keyboard shortcuts" aria-label="Keyboard shortcuts" title="Keyboard shortcuts"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="1"/><path d="M6 10h1M9 10h1M12 10h1M15 10h1M6 13h1M9 13h5M21 10l-1.5 2 1.5 2"/></svg></button>
+        </div>
+        <h1 class="reader-title">${escapeHtml(mail.subject)} <span class="inbox-tag">Inbox ×</span>
+          <span class="reader-title-actions">
+            <button class="round-button" data-reader-action="Print" aria-label="Print" title="Print"><svg viewBox="0 0 24 24"><path d="M7 9V4.5h10V9M7 17H4.5v-7h15v7H17M7 14h10v6H7z"/></svg></button>
+            <button class="round-button" data-reader-action="Open in new window" aria-label="Open in new window" title="Open in new window"><svg viewBox="0 0 24 24"><path d="M13 5h6v6M19 5l-8 8M10 7H5v12h12v-5"/></svg></button>
+          </span>
+        </h1>
+        <div class="message-heading">
+          <div class="sender-avatar">${escapeHtml(mail.sender.charAt(0).toUpperCase())}</div>
+          <div><div class="sender-line">${escapeHtml(mail.sender)} <span class="sender-address">&lt;${escapeHtml(address)}&gt;</span></div><div class="recipient-line">to me⌄</div></div>
+          <div class="message-time">${escapeHtml(mail.receivedAt || mail.time)} &nbsp; ☆ &nbsp; ↩ &nbsp; ⋮</div>
+        </div>
+        ${isIndonesian ? `<div class="translation-card" id="translationCard"><svg viewBox="0 0 24 24"><path d="M3 4h10v2H9.8a12 12 0 0 1-2 4.1A12 12 0 0 0 11 12l-1 1.7a14 14 0 0 1-3.4-2.1A14 14 0 0 1 2.8 14l-.8-1.8a12 12 0 0 0 3.1-2A12 12 0 0 1 3.5 8h2.2c.3.5.6 1 .9 1.4A10 10 0 0 0 7.8 6H3zm13.5 5h2L23 21h-2.2l-1.1-3h-4.5l-1.1 3H12zm-.6 7h3l-1.5-4.2z"/></svg><div class="translation-copy"><div class="translation-title">It looks like this message is in Indonesian</div><button class="translate-button" id="translateMessage">Translate to English</button></div><button class="translation-close" id="closeTranslation" aria-label="Close translation">×</button></div>` : ""}
+        <div class="message-body">${buildEmailBody(mail)}</div>
+        <div class="reader-actions" id="readerActions"><button class="reply-button" data-reply="reply">↩ Reply</button><button class="reply-button" data-reply="forward">↪ Forward</button><button class="round-button">☺</button></div>
+        <div class="inline-reply" id="inlineReply">
+          <div class="inline-reply-head">
+            <span id="inlineModeIcon">↩</span>
+            <strong id="inlineModeLabel">Reply</strong>
+            <input id="inlineRecipient" aria-label="Recipient">
+            <button class="editor-tool" id="inlineMore" title="More options">⋮</button>
+          </div>
+          <div class="inline-editor" id="inlineEditor" contenteditable="true" aria-label="Message body"></div>
+          <div class="inline-reply-toolbar">
+            <button class="inline-send" id="inlineSend">Send ▾</button>
+            <button class="editor-tool" title="Formatting options"><strong>Aa</strong></button>
+            <button class="editor-tool" title="Attach files">📎</button>
+            <button class="editor-tool" title="Insert link">🔗</button>
+            <button class="editor-tool" title="Insert emoji">☺</button>
+            <button class="editor-tool" title="Insert files with Drive">△</button>
+            <button class="editor-tool" title="Insert photo">▧</button>
+            <button class="editor-tool" title="Confidential mode">🔒</button>
+            <button class="editor-tool" title="Insert signature">✎</button>
+            <div class="toolbar-spacer"></div>
+            <button class="editor-tool" id="discardInline" title="Discard draft"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M7 4V2h10v2h4v2h-2v16H5V6H3V4zm0 2v14h10V6z"/></svg></button>
+          </div>
+        </div>
+      </article>`;
+      document.getElementById("readerBack").addEventListener("click", () => {
+        state.openEmail = null;
+        setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+        renderEmails();
+      });
+      document.getElementById("closeTranslation")?.addEventListener("click", () => document.getElementById("translationCard").remove());
+      document.getElementById("translateMessage")?.addEventListener("click", event => {
+        event.target.textContent = "Translated to English";
+        showToast("Message translated");
+      });
+      const attachmentCard = mailList.querySelector("[data-open-pdf]");
+      attachmentCard?.addEventListener("click", event => {
+        if (event.target.closest("[data-pdf-download], [data-drive-link]")) return;
+        document.getElementById("pdfViewer").classList.add("open");
+        document.body.style.overflow = "hidden";
+      });
+      attachmentCard?.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          document.getElementById("pdfViewer").classList.add("open");
+          document.body.style.overflow = "hidden";
+        }
+      });
+      mailList.querySelector("[data-pdf-download]")?.addEventListener("click", event => {
+        event.stopPropagation();
+        showToast("Downloading ELC-009-010_Letter of Accept_Elconika.pdf");
+      });
+      mailList.querySelectorAll("[data-reader-action]").forEach(button => button.addEventListener("click", () => showToast(`${button.dataset.readerAction} selected`)));
+      mailList.querySelectorAll("[data-reply]").forEach(button => button.addEventListener("click", () => {
+        const forward = button.dataset.reply === "forward";
+        const replyBox = document.getElementById("inlineReply");
+        replyBox.classList.add("open");
+        document.getElementById("readerActions").style.display = "none";
+        document.getElementById("inlineModeIcon").textContent = forward ? "↪" : "↩";
+        document.getElementById("inlineModeLabel").textContent = forward ? "Forward" : "Reply";
+        const recipient = document.getElementById("inlineRecipient");
+        recipient.value = forward ? "" : address;
+        recipient.placeholder = forward ? "Recipients" : "";
+        recipient.readOnly = !forward;
+        const editor = document.getElementById("inlineEditor");
+        editor.innerHTML = forward ? `<br><br><div style="color:#5f6368;border-top:1px solid #dadce0;padding-top:12px">---------- Forwarded message ---------<br>From: ${escapeHtml(mail.sender)} &lt;${escapeHtml(address)}&gt;<br>Subject: ${escapeHtml(mail.subject)}<br><br>${escapeHtml(mail.preview)}</div>` : "";
+        (forward ? recipient : editor).focus();
+      }));
+      document.getElementById("inlineSend").addEventListener("click", () => {
+        const recipient = document.getElementById("inlineRecipient").value.trim();
+        if (!recipient) return showToast("Add at least one recipient");
+        document.getElementById("inlineReply").classList.remove("open");
+        document.getElementById("readerActions").style.display = "flex";
+        showToast("Message sent");
+      });
+      document.getElementById("discardInline").addEventListener("click", () => {
+        document.getElementById("inlineReply").classList.remove("open");
+        document.getElementById("readerActions").style.display = "flex";
+        document.getElementById("inlineEditor").innerHTML = "";
+        showToast("Draft discarded");
+      });
+      mailList.querySelectorAll(".editor-tool[title]:not(#discardInline)").forEach(button => button.addEventListener("click", () => showToast(button.title)));
+    }
+
+    function renderEmails() {
+      updateViewChrome();
+      if (state.openEmail !== null) {
+        renderEmailReader(emails.find(mail => mail.id === state.openEmail));
+        return;
+      }
+      if (renderSpecialPage()) return;
+      const rows = visibleEmails();
+      mailList.innerHTML = rows.length ? rows.map(mail => `
+        <div class="mail-row ${mail.unread ? "unread" : ""} ${mail.selected ? "selected" : ""}" data-id="${mail.id}" data-avatar="${escapeHtml(mail.sender.charAt(0))}">
+          <div class="checkbox ${mail.selected ? "checked" : ""}" data-action="select" title="Select"></div>
+          <div class="star ${mail.starred ? "starred" : ""}" data-action="star" title="Star">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="${mail.starred
+              ? "m12 2.8 2.9 5.8 6.4.9-4.7 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4-4.7-4.5 6.4-.9z"
+              : "M12 3.7 14.5 9l5.8.8-4.2 4.1 1 5.8-5.1-2.8-5.1 2.8 1-5.8-4.2-4.1L9.5 9zm0 4.5-1.2 2.5-2.8.4 2 2-.5 2.8 2.5-1.3 2.5 1.3-.5-2.8 2-2-2.8-.4z"}"/></svg>
+          </div>
+          <div class="sender">${escapeHtml(mail.sender)}</div>
+          <div class="subject">${escapeHtml(mail.subject)} <span>— ${escapeHtml(mail.preview)}</span></div>
+          <div class="row-end">
+            <div class="time">${escapeHtml(mail.time)}</div>
+            <div class="row-actions">
+              <button class="row-action" data-row-action="archive" title="Archive"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h15v11h-15zM3.5 4.5h17v4h-17zM12 10v5M9.5 12.5 12 15l2.5-2.5"/></svg></button>
+              <button class="row-action" data-row-action="delete" title="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 7h13M9 7V4.5h6V7M7.5 7l.7 12.5h7.6L16.5 7M10 10.5v5.5M14 10.5v5.5"/></svg></button>
+              <button class="row-action" data-row-action="unread" title="Mark as unread"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v12h-17zM4 7l8 6 8-6"/></svg></button>
+              <button class="row-action" data-row-action="snooze" title="Snooze"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.5 2"/></svg></button>
+            </div>
+          </div>
+        </div>`).join("") : `<div class="mail-empty">No messages in this view.</div>`;
+      const selected = rows.filter(mail => mail.selected);
+      const allOnPage = rows.length > 0 && selected.length === rows.length;
+      document.getElementById("selectAll").classList.toggle("checked", allOnPage);
+      document.getElementById("toolbar").classList.toggle("selection-mode", selected.length > 0);
+      const banner = document.getElementById("selectionBanner");
+      banner.classList.toggle("show", allOnPage);
+      document.getElementById("selectionMessage").textContent = state.allConversationsSelected
+        ? "All 2,430 conversations in Primary are selected. "
+        : "All 50 conversations on this page are selected. ";
+      const selectAllButton = document.getElementById("selectAllConversations");
+      selectAllButton.style.display = state.allConversationsSelected ? "none" : "inline";
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function openEmail(mail) {
+      mail.unread = false;
+      state.openEmail = mail.id;
+      setPublicRoute("/mail/u/0/", `#${state.view === "inbox" ? "inbox" : state.view}/${mail.id}`);
+      renderEmails();
+    }
+
+    mailList.addEventListener("click", event => {
+      const row = event.target.closest(".mail-row");
+      if (!row) return;
+      const mail = emails.find(item => item.id === Number(row.dataset.id));
+      const rowAction = event.target.closest("[data-row-action]")?.dataset.rowAction;
+      if (rowAction) {
+        if (rowAction === "archive") mail.folder = "archive";
+        if (rowAction === "delete") mail.folder = "trash";
+        if (rowAction === "unread") mail.unread = true;
+        if (rowAction === "snooze") mail.folder = "snoozed";
+        showToast(`${rowAction.charAt(0).toUpperCase() + rowAction.slice(1)} applied`);
+        renderEmails();
+        return;
+      }
+      const action = event.target.closest("[data-action]")?.dataset.action;
+      if (action === "select") mail.selected = !mail.selected;
+      else if (action === "star") mail.starred = !mail.starred;
+      else openEmail(mail);
+      renderEmails();
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => {
+      state.category = tab.dataset.category;
+      state.view = "inbox";
+      state.openEmail = null;
+      state.query = "";
+      document.getElementById("searchInput").value = "";
+      document.querySelectorAll(".tab").forEach(item => item.classList.toggle("active", item === tab));
+      document.querySelectorAll(".nav-item").forEach(item => {
+        const matchesCategory = item.dataset.category
+          ? item.dataset.category === state.category
+          : item.dataset.view === "inbox";
+        item.classList.toggle("active", matchesCategory);
+      });
+      setPublicRoute("/mail/u/0/", "#inbox");
+      renderEmails();
+    }));
+
+    document.querySelectorAll(".nav-item").forEach(item => item.addEventListener("click", () => {
+      if (item.id === "moreToggle") {
+        const extraNav = document.getElementById("extraNav");
+        const opening = extraNav.hidden;
+        extraNav.hidden = !opening;
+        document.getElementById("moreLabel").textContent = opening ? "Less" : "More";
+        item.classList.toggle("expanded", opening);
+        return;
+      }
+      if (item.dataset.view === "create-label") {
+        document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav === item));
+        document.getElementById("labelOverlay").classList.add("open");
+        setTimeout(() => document.getElementById("newLabelName").focus(), 0);
+        return;
+      }
+      state.view = item.dataset.view;
+      if (item.dataset.category) {
+        state.view = "inbox";
+        state.category = item.dataset.category;
+        document.querySelectorAll(".tab").forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.category === state.category);
+        });
+      }
+      state.openEmail = null;
+      state.query = "";
+      document.getElementById("searchInput").value = viewQueries[state.view] || "";
+      if (state.view === "snoozed") {
+        showToast("No snoozed messages");
+      }
+      document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav === item));
+      setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+      renderEmails();
+      if (window.innerWidth <= 700) document.getElementById("app").classList.remove("sidebar-pinned");
+    }));
+
+    document.getElementById("searchInput").addEventListener("input", event => {
+      state.query = event.target.value.trim();
+      renderEmails();
+    });
+    document.getElementById("menuButton").addEventListener("click", () => document.getElementById("app").classList.toggle("sidebar-pinned"));
+    document.getElementById("mobileSidebarClose").addEventListener("click", () => document.getElementById("app").classList.remove("sidebar-pinned"));
+    document.getElementById("mobileSidebarBackdrop").addEventListener("click", () => document.getElementById("app").classList.remove("sidebar-pinned"));
+    document.getElementById("composeButton").addEventListener("click", () => {
+      document.getElementById("composeOverlay").classList.add("open");
+      document.querySelector(".compose-dialog").classList.remove("minimized");
+      setTimeout(() => document.getElementById("composeTo").focus(), 0);
+    });
+    document.getElementById("mobileCompose").addEventListener("click", () => {
+      document.getElementById("composeOverlay").classList.add("open");
+      document.querySelector(".compose-dialog").classList.remove("minimized");
+      setTimeout(() => document.getElementById("composeTo").focus(), 0);
+    });
+    const composeDialog = document.querySelector(".compose-dialog");
+    document.getElementById("composeMinimize").addEventListener("click", () => {
+      composeDialog.classList.toggle("minimized");
+      composeDialog.classList.remove("popout");
+    });
+    document.getElementById("composePopout").addEventListener("click", () => {
+      composeDialog.classList.toggle("popout");
+      composeDialog.classList.remove("minimized");
+    });
+    document.getElementById("composeCc").addEventListener("click", () => {
+      document.getElementById("composeCcInput").classList.add("show");
+      document.getElementById("composeCcInput").focus();
+    });
+    document.getElementById("composeBcc").addEventListener("click", () => {
+      document.getElementById("composeBccInput").classList.add("show");
+      document.getElementById("composeBccInput").focus();
+    });
+    document.getElementById("sendMenu").addEventListener("click", () => showToast("Schedule send opened"));
+    document.getElementById("composeAttach").addEventListener("click", () => document.getElementById("composeFile").click());
+    document.getElementById("composeFile").addEventListener("change", event => {
+      if (event.target.files.length) showToast(`${event.target.files.length} file${event.target.files.length === 1 ? "" : "s"} attached`);
+    });
+    document.getElementById("composeDiscard").addEventListener("click", () => {
+      document.querySelectorAll(".compose-fields input, .compose-fields textarea").forEach(field => field.value = "");
+      document.querySelectorAll(".compose-extra-recipient").forEach(field => field.classList.remove("show"));
+      composeDialog.classList.remove("minimized","popout");
+      document.getElementById("composeOverlay").classList.remove("open");
+      showToast("Draft discarded");
+    });
+    document.getElementById("settingsButton").addEventListener("click", () => {
+      state.view = "manage-labels";
+      state.openEmail = null;
+      state.query = "";
+      document.getElementById("searchInput").value = "";
+      document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav.dataset.view === "manage-labels"));
+      setPublicRoute("/mail/u/0/", "#settings");
+      renderEmails();
+    });
+    const helpPanel = document.getElementById("helpPanel");
+    const geminiPanel = document.getElementById("geminiPanel");
+    function toggleFeaturePanel(panel) {
+      const opening = !panel.classList.contains("open");
+      [helpPanel, geminiPanel].forEach(item => item.classList.remove("open"));
+      if (opening) panel.classList.add("open");
+    }
+    document.getElementById("helpButton").addEventListener("click", event => {
+      event.stopPropagation();
+      toggleFeaturePanel(helpPanel);
+      if (helpPanel.classList.contains("open")) setTimeout(() => document.getElementById("helpSearch").focus(), 0);
+    });
+    document.getElementById("geminiButton").addEventListener("click", event => {
+      event.stopPropagation();
+      toggleFeaturePanel(geminiPanel);
+      if (geminiPanel.classList.contains("open")) setTimeout(() => document.getElementById("geminiPrompt").focus(), 0);
+    });
+    document.getElementById("upgradeButton").addEventListener("click", () => {
+      [helpPanel, geminiPanel].forEach(item => item.classList.remove("open"));
+      document.getElementById("upgradeOverlay").classList.add("open");
+    });
+    document.querySelectorAll(".feature-close").forEach(button => button.addEventListener("click", () => button.closest(".feature-panel").classList.remove("open")));
+    document.getElementById("helpSearch").addEventListener("input", event => {
+      const query = event.target.value.trim().toLowerCase();
+      document.querySelectorAll("#helpLinks .help-link").forEach(link => link.hidden = !link.textContent.toLowerCase().includes(query));
+    });
+    function submitGeminiPrompt(text) {
+      const prompt = text.trim();
+      if (!prompt) return;
+      document.getElementById("geminiPrompt").value = "";
+      showToast(`Gemini is preparing: ${prompt}`);
+    }
+    document.getElementById("geminiSend").addEventListener("click", () => submitGeminiPrompt(document.getElementById("geminiPrompt").value));
+    document.getElementById("geminiPrompt").addEventListener("keydown", event => {
+      if (event.key === "Enter") submitGeminiPrompt(event.target.value);
+    });
+    document.querySelectorAll(".gemini-suggestion").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("geminiPrompt").value = button.textContent;
+      submitGeminiPrompt(button.textContent);
+    }));
+    document.querySelectorAll(".upgrade-choose").forEach(button => button.addEventListener("click", () => {
+      document.getElementById("upgradeOverlay").classList.remove("open");
+      showToast(`${button.dataset.plan} selected`);
+    }));
+    const pdfViewer = document.getElementById("pdfViewer");
+    const pdfPageImage = document.getElementById("pdfPageImage");
+    let pdfZoom = 1;
+    function closePdfViewer() {
+      pdfViewer.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    function updatePdfZoom() {
+      pdfPageImage.style.width = `${Math.round(Math.min(690, window.innerWidth - 80) * pdfZoom)}px`;
+    }
+    document.getElementById("pdfClose").addEventListener("click", closePdfViewer);
+    document.getElementById("pdfZoomIn").addEventListener("click", () => { pdfZoom = Math.min(2.2, pdfZoom + .2); updatePdfZoom(); });
+    document.getElementById("pdfZoomOut").addEventListener("click", () => { pdfZoom = Math.max(.5, pdfZoom - .2); updatePdfZoom(); });
+    document.getElementById("pdfZoomReset").addEventListener("click", () => { pdfZoom = 1; updatePdfZoom(); });
+    document.getElementById("pdfPrint").addEventListener("click", () => window.print());
+    document.getElementById("pdfDownload").addEventListener("click", () => showToast("Downloading ELC-009-010_Letter of Accept_Elconika.pdf"));
+    document.getElementById("openWithDocs").addEventListener("click", () => showToast("Opening with Google Docs"));
+    document.getElementById("pdfMore").addEventListener("click", () => showToast("More PDF options opened"));
+    document.getElementById("accountButton").addEventListener("click", event => {
+      event.stopPropagation();
+      document.getElementById("accountPopover").classList.toggle("open");
+    });
+    document.getElementById("accountClose").addEventListener("click", () => document.getElementById("accountPopover").classList.remove("open"));
+    document.querySelectorAll("[data-account-action]").forEach(item => item.addEventListener("click", () => showToast(`${item.dataset.accountAction} opened`)));
+    document.addEventListener("click", event => {
+      const popover = document.getElementById("accountPopover");
+      if (!popover.contains(event.target) && event.target !== document.getElementById("accountButton")) popover.classList.remove("open");
+      if (!helpPanel.contains(event.target) && event.target !== document.getElementById("helpButton")) helpPanel.classList.remove("open");
+      if (!geminiPanel.contains(event.target) && event.target !== document.getElementById("geminiButton")) geminiPanel.classList.remove("open");
+    });
+    document.getElementById("selectAll").addEventListener("click", () => {
+      const rows = visibleEmails();
+      const select = !rows.every(mail => mail.selected);
+      rows.forEach(mail => mail.selected = select);
+      state.allConversationsSelected = false;
+      renderEmails();
+    });
+    document.getElementById("selectAllConversations").addEventListener("click", () => {
+      state.allConversationsSelected = true;
+      emails.filter(mail => mail.folder === "inbox" && mail.category === state.category).forEach(mail => mail.selected = true);
+      renderEmails();
+    });
+    document.querySelectorAll("[data-bulk]").forEach(button => button.addEventListener("click", () => {
+      const selected = emails.filter(mail => mail.selected);
+      if (!selected.length) return;
+      const action = button.dataset.bulk;
+      if (action === "archive") selected.forEach(mail => { mail.folder = "archive"; mail.selected = false; });
+      if (action === "spam") selected.forEach(mail => { mail.folder = "spam"; mail.selected = false; });
+      if (action === "delete") selected.forEach(mail => { mail.folder = "trash"; mail.selected = false; });
+      if (action === "unread") selected.forEach(mail => { mail.unread = true; mail.selected = false; });
+      if (action === "snooze") selected.forEach(mail => { mail.folder = "snoozed"; mail.selected = false; });
+      if (["move","label","more"].includes(action)) selected.forEach(mail => mail.selected = false);
+      state.allConversationsSelected = false;
+      showToast(`${button.getAttribute("aria-label")} applied to ${selected.length} conversation${selected.length === 1 ? "" : "s"}`);
+      renderEmails();
+    }));
+    document.getElementById("sendButton").addEventListener("click", () => {
+      const to = document.getElementById("composeTo").value.trim();
+      const subject = document.getElementById("composeSubject").value.trim();
+      if (!to) return showToast("Add at least one recipient");
+      emails.push({ id:emails.length, sender:"Me", subject:subject || "(no subject)", preview:document.getElementById("composeBody").value || "Sent message", time:"Now", category:"Primary", folder:"sent", starred:false, selected:false });
+      document.getElementById("composeOverlay").classList.remove("open");
+      document.querySelectorAll(".compose-fields input, .compose-fields textarea").forEach(field => field.value = "");
+      document.querySelectorAll(".compose-extra-recipient").forEach(field => field.classList.remove("show"));
+      composeDialog.classList.remove("minimized","popout");
+      showToast("Message sent");
+    });
+    document.getElementById("createLabelButton").addEventListener("click", () => {
+      const value = document.getElementById("newLabelName").value.trim();
+      if (!value) return showToast("Enter a label name");
+      document.getElementById("labelOverlay").classList.remove("open");
+      document.getElementById("newLabelName").value = "";
+      showToast(`Label “${value}” created`);
+    });
+
+    document.querySelectorAll(".close-dialog").forEach(button => button.addEventListener("click", () => button.closest(".overlay").classList.remove("open")));
+    document.querySelectorAll(".overlay").forEach(overlay => overlay.addEventListener("click", event => {
+      if (event.target === overlay) overlay.classList.remove("open");
+    }));
+    document.querySelectorAll("button:not(#menuButton):not(#mobileSidebarClose):not(#composeButton):not(#composeMinimize):not(#composePopout):not(#composeCc):not(#composeBcc):not(#composeAttach):not(#composeDiscard):not(#sendMenu):not(#sendButton):not(#settingsButton):not(#helpButton):not(#geminiButton):not(#upgradeButton):not(#geminiSend):not(#pdfClose):not(#pdfZoomIn):not(#pdfZoomOut):not(#pdfZoomReset):not(#pdfPrint):not(#openWithDocs):not(#pdfMore):not(#accountButton):not(#accountClose):not(.feature-close):not(.gemini-suggestion):not(.upgrade-choose):not(.close-dialog):not([data-account-action]):not([data-bulk]):not(#selectAllConversations)").forEach(button => {
+      if (button.closest(".mail-row")) return;
+      button.addEventListener("click", () => {
+        const label = button.getAttribute("aria-label");
+        if (label && !["Close","Search"].includes(label)) showToast(`${label} opened`);
+      });
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        document.querySelectorAll(".overlay.open").forEach(overlay => overlay.classList.remove("open"));
+        if (pdfViewer.classList.contains("open")) closePdfViewer();
+        document.getElementById("app").classList.remove("sidebar-pinned");
+      }
+    });
+
+    renderEmails();
+  </script>
+</body>
+</html>
