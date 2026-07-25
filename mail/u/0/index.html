@@ -1951,27 +1951,27 @@
       }
       .mail-row, .mail-row:hover {
         position: relative;
-        min-height: 108px;
-        margin-bottom: 4px;
-        padding: 14px 12px;
+        min-height: 88px;
+        margin-bottom: 2px;
+        padding: 9px 10px;
         border: 0;
-        border-radius: 16px;
+        border-radius: 13px;
         background: #fff;
-        grid-template-columns: 54px minmax(0,1fr) 58px;
-        grid-template-rows: 26px 27px 29px;
-        gap: 0 10px;
+        grid-template-columns: 48px minmax(0,1fr) 54px;
+        grid-template-rows: 22px 22px 26px;
+        gap: 0 8px;
         box-shadow: none;
       }
       .mail-row:nth-child(even) { background: #f8fafd; }
       .mail-row::before {
         display: grid;
-        width: 48px;
-        height: 48px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         color: #183153;
         background: #aecbfa;
         content: attr(data-avatar);
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 400;
         text-transform: uppercase;
         grid-column: 1;
@@ -1981,8 +1981,8 @@
       .mail-row .mobile-company-avatar {
         z-index: 1;
         display: grid;
-        width: 48px;
-        height: 48px;
+        width: 42px;
+        height: 42px;
         overflow: hidden;
         border: 1px solid #e0e3e7;
         border-radius: 50%;
@@ -2004,7 +2004,7 @@
         padding: 0;
         grid-column: 2;
         grid-row: 1;
-        font-size: 16px;
+        font-size: 15px;
         text-overflow: ellipsis;
       }
       .mail-row .subject {
@@ -2012,7 +2012,7 @@
         align-self: start;
         grid-column: 2;
         grid-row: 2 / 4;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
         line-height: 1.4;
         white-space: nowrap;
@@ -2047,8 +2047,8 @@
       .mail-row .star svg { width: 25px; height: 25px; }
       .mail-row.unread::after {
         position: absolute;
-        top: 22px;
-        right: 9px;
+        top: 17px;
+        right: 8px;
         width: 8px;
         height: 8px;
         border-radius: 50%;
@@ -2937,10 +2937,11 @@
     let authIsLoading = false;
     document.getElementById("temporaryBrowserId").textContent = temporaryBrowserId;
 
-    function setPublicRoute(path, hash = "") {
+    function setPublicRoute(path, hash = "", mode = "replace", routeState = null) {
       if (location.protocol === "http:" || location.protocol === "https:") {
         const projectPrefix = location.hostname.endsWith("github.io") ? "/temporary-gmail" : "";
-        history.replaceState(null, "", `${projectPrefix}${path}${hash}`);
+        const method = mode === "push" ? "pushState" : "replaceState";
+        history[method](routeState, "", `${projectPrefix}${path}${hash}`);
       }
     }
 
@@ -3243,7 +3244,10 @@
       const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
       if (supportedViews.has(routeView)) state.view = routeView === "settings" ? "manage-labels" : routeView;
       if (routeMessage && Number.isFinite(Number(routeMessage))) state.openEmail = Number(routeMessage);
-      setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+      const initialHash = state.openEmail !== null
+        ? `${mailboxHash(state.view)}/${state.openEmail}`
+        : mailboxHash(state.view);
+      setPublicRoute("/mail/u/0/", initialHash, "replace", { mailbox: true, view: state.view, messageId: state.openEmail });
     }
     const mailList = document.getElementById("mailList");
     const toast = document.getElementById("toast");
@@ -3518,8 +3522,12 @@
         </div>
       </article>`;
       document.getElementById("readerBack").addEventListener("click", () => {
+        if (history.state?.mailReader) {
+          history.back();
+          return;
+        }
         state.openEmail = null;
-        setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+        setPublicRoute("/mail/u/0/", mailboxHash(state.view), "replace", { mailbox: true, view: state.view });
         renderEmails();
       });
       document.getElementById("closeTranslation")?.addEventListener("click", () => document.getElementById("translationCard").remove());
@@ -3628,9 +3636,29 @@
     function openEmail(mail) {
       mail.unread = false;
       state.openEmail = mail.id;
-      setPublicRoute("/mail/u/0/", `#${state.view === "inbox" ? "inbox" : state.view}/${mail.id}`);
+      setPublicRoute(
+        "/mail/u/0/",
+        `#${state.view === "inbox" ? "inbox" : state.view}/${mail.id}`,
+        "push",
+        { mailbox: true, mailReader: true, view: state.view, messageId: mail.id }
+      );
       renderEmails();
     }
+
+    window.addEventListener("popstate", () => {
+      if (document.body.classList.contains("auth-locked")) return;
+      const [routeView, routeMessage] = location.hash.replace(/^#/, "").split("/");
+      const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
+      state.view = supportedViews.has(routeView)
+        ? (routeView === "settings" ? "manage-labels" : routeView)
+        : "inbox";
+      state.openEmail = routeMessage && Number.isFinite(Number(routeMessage))
+        ? Number(routeMessage)
+        : null;
+      document.getElementById("pdfViewer")?.classList.remove("open");
+      document.body.style.overflow = "";
+      renderEmails();
+    });
 
     mailList.addEventListener("click", event => {
       const row = event.target.closest(".mail-row");
