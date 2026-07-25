@@ -3983,6 +3983,11 @@
         showTemporaryLogin("You have been signed out.");
         return;
       }
+      if (action === "Add account") {
+        window.open("https://accounts.google.com/", "_blank", "noopener,noreferrer");
+        showToast("Opening the official Google sign-in page");
+        return;
+      }
       showToast(`${action} opened`);
     }));
     document.addEventListener("click", event => {
