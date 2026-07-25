@@ -2910,11 +2910,49 @@
   <script>
     const TEMPORARY_LOGIN = {
       email: "angreaputrabagus@gmail.com",
-      code: "Gm#7qL!2vP@9sX$4Za",
       version: "google-signin-v2",
+      rotationInterval: 3 * 60 * 60 * 1000,
+      rotationSalt: "temporary-gmail-demo-2026",
       inactivityLimit: 3 * 60 * 60 * 1000,
       browserKey: "gmailTemporaryBrowserId",
       sessionKey: "gmailTemporarySession"
+    };
+
+    function getPasswordRotationSlot(now = Date.now()) {
+      return Math.floor(now / TEMPORARY_LOGIN.rotationInterval);
+    }
+
+    function getTemporaryPassword(now = Date.now()) {
+      const source = `${TEMPORARY_LOGIN.rotationSalt}:${getPasswordRotationSlot(now)}`;
+      let state = 2166136261;
+      for (let index = 0; index < source.length; index += 1) {
+        state ^= source.charCodeAt(index);
+        state = Math.imul(state, 16777619);
+      }
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+      let password = "";
+      for (let index = 0; index < 18; index += 1) {
+        state ^= state << 13;
+        state ^= state >>> 17;
+        state ^= state << 5;
+        password += alphabet[(state >>> 0) % alphabet.length];
+      }
+      return password;
+    }
+
+    function getTemporaryPasswordInfo(now = Date.now()) {
+      const slot = getPasswordRotationSlot(now);
+      return {
+        password: getTemporaryPassword(now),
+        validFrom: new Date(slot * TEMPORARY_LOGIN.rotationInterval).toLocaleString(),
+        changesAt: new Date((slot + 1) * TEMPORARY_LOGIN.rotationInterval).toLocaleString()
+      };
+    }
+
+    window.getTemporaryPassword = () => {
+      const info = getTemporaryPasswordInfo();
+      console.table(info);
+      return info;
     };
 
     function getTemporaryBrowserId() {
@@ -3075,6 +3113,7 @@
         session.version === TEMPORARY_LOGIN.version &&
         session.email === TEMPORARY_LOGIN.email &&
         session.browserId === temporaryBrowserId &&
+        session.rotationSlot === getPasswordRotationSlot() &&
         Number.isFinite(session.lastActivity) &&
         Date.now() - session.lastActivity < TEMPORARY_LOGIN.inactivityLimit
       );
@@ -3102,7 +3141,7 @@
       const session = readTemporarySession();
       if (!temporarySessionIsValid(session)) {
         if (!document.body.classList.contains("auth-locked")) {
-          showTemporaryLogin("Sesi berakhir karena tidak ada aktivitas selama 3 jam.");
+          showTemporaryLogin("Kode akses telah berubah atau sesi berakhir setelah 3 jam.");
         }
         return;
       }
@@ -3128,7 +3167,7 @@
         return;
       }
       const code = temporaryCode.value;
-      if (code.length !== 18 || code !== TEMPORARY_LOGIN.code) {
+      if (code.length !== 18 || code !== getTemporaryPassword()) {
         temporaryLoginError.textContent = "Wrong code. Enter the 18-character code and try again.";
         temporaryCode.focus();
         temporaryCode.select();
@@ -3140,6 +3179,7 @@
           version: TEMPORARY_LOGIN.version,
           email,
           browserId: temporaryBrowserId,
+          rotationSlot: getPasswordRotationSlot(now),
           loginAt: now,
           lastActivity: now
         }));
@@ -3179,7 +3219,7 @@
     });
     window.setInterval(() => {
       if (!document.body.classList.contains("auth-locked") && !temporarySessionIsValid()) {
-        showTemporaryLogin("Sesi berakhir karena tidak ada aktivitas selama 3 jam.");
+        showTemporaryLogin("Kode akses telah berubah atau sesi berakhir setelah 3 jam.");
       }
     }, 60000);
 
