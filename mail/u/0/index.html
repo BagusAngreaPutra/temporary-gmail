@@ -12,6 +12,9 @@
   </script>
   <title>Inbox – Gmail</title>
   <link rel="icon" type="image/webp" href="https://raw.githubusercontent.com/BagusAngreaPutra/temporary-gmail/main/Gmail.width-500.format-webp.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; }
@@ -19,10 +22,17 @@
       overflow: hidden;
       color: #1f1f1f;
       background: #f8fafd;
-      font: 14px Arial, sans-serif;
+      font: 400 14px/1.35 "Roboto", Arial, sans-serif;
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
-    button, input { font: inherit; }
+    button, input, textarea, select { font: inherit; }
     button { color: inherit; }
+    button, .compose, .nav-item, .tab, .reader-title, .dialog-header, .settings-tabs {
+      font-family: "Google Sans", "Roboto", Arial, sans-serif;
+    }
     svg { display: block; }
     .icon {
       width: 20px;
@@ -238,7 +248,7 @@
     }
     .nav-item.active {
       background: #d3e3fd;
-      font-weight: 700;
+      font-weight: 600;
     }
     .nav-item .count {
       margin-left: auto;
@@ -709,7 +719,7 @@
       object-fit: contain;
     }
     .mobile-company-avatar { display: none; }
-    .sender-line { font-weight: 700; }
+    .sender-line { font-weight: 600; }
     .sender-address { color: #5f6368; font-size: 12px; font-weight: 400; }
     .recipient-line { margin-top: 4px; color: #5f6368; font-size: 12px; }
     .message-time { color: #5f6368; font-size: 12px; white-space: nowrap; }
@@ -1446,7 +1456,7 @@
     }
     .mail-row.unread {
       background: white;
-      font-weight: 700;
+      font-weight: 600;
     }
     .mail-row:hover { box-shadow: 0 1px 3px rgba(60,64,67,.3); }
     .mail-row {
@@ -2126,7 +2136,7 @@
         radial-gradient(circle at 85% 85%, rgba(234,221,255,.62), transparent 32%),
         #f8fafd;
       color: #1f1f1f;
-      font-family: Arial, sans-serif;
+      font-family: "Google Sans", "Roboto", Arial, sans-serif;
     }
     .auth-gate[hidden] { display: none !important; }
     .auth-card {
@@ -2250,7 +2260,7 @@
       place-items: center;
       padding: 32px;
       background: #f0f4f9;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: "Google Sans", "Roboto", Arial, sans-serif;
     }
     .auth-shell { width: min(1040px, 100%); }
     .auth-card {
