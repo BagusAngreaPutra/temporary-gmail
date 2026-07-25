@@ -698,6 +698,17 @@
       font-size: 18px;
       place-items: center;
     }
+    .sender-avatar.has-company-logo {
+      overflow: hidden;
+      border: 1px solid #e0e3e7;
+      background: #fff;
+    }
+    .sender-avatar.has-company-logo img {
+      width: 76%;
+      height: 76%;
+      object-fit: contain;
+    }
+    .mobile-company-avatar { display: none; }
     .sender-line { font-weight: 700; }
     .sender-address { color: #5f6368; font-size: 12px; font-weight: 400; }
     .recipient-line { margin-top: 4px; color: #5f6368; font-size: 12px; }
@@ -1966,6 +1977,24 @@
         grid-column: 1;
         grid-row: 1 / 3;
         place-items: center;
+      }
+      .mail-row .mobile-company-avatar {
+        z-index: 1;
+        display: grid;
+        width: 48px;
+        height: 48px;
+        overflow: hidden;
+        border: 1px solid #e0e3e7;
+        border-radius: 50%;
+        background: #fff;
+        grid-column: 1;
+        grid-row: 1 / 3;
+        place-items: center;
+      }
+      .mail-row .mobile-company-avatar img {
+        width: 76%;
+        height: 76%;
+        object-fit: contain;
       }
       .mail-row:nth-child(3n+2)::before { background: #a7d7c5; }
       .mail-row:nth-child(3n+3)::before { background: #f6aea9; }
@@ -3324,6 +3353,37 @@
       return known[mail.sender] || `noreply@${mail.sender.toLowerCase().replace(/[^a-z0-9]+/g,"") || "mail"}.com`;
     }
 
+    function senderLogo(sender) {
+      const sources = [
+        [/Microsoft/i, "microsoft.com"],
+        [/Steam/i, "steampowered.com"],
+        [/^Google$|Google Play|Google Calendar|Google Tips/i, "google.com"],
+        [/GitHub/i, "github.com"],
+        [/OpenAI|ChatGPT/i, "openai.com"],
+        [/LinkedIn/i, "linkedin.com"],
+        [/Shopee/i, "shopee.co.id"],
+        [/Bank ?BRI|BankBRI/i, "bri.co.id"],
+        [/Jago/i, "jago.com"],
+        [/Rumahweb/i, "rumahweb.com"],
+        [/Tokopedia/i, "tokopedia.com"],
+        [/Gojek/i, "gojek.com"],
+        [/Grab/i, "grab.com"],
+        [/DigitalOcean/i, "digitalocean.com"],
+        [/AWS/i, "aws.amazon.com"],
+        [/Figma/i, "figma.com"],
+        [/Notion/i, "notion.so"],
+        [/Slack/i, "slack.com"],
+        [/Dropbox/i, "dropbox.com"],
+        [/Duolingo/i, "duolingo.com"],
+        [/Coursera/i, "coursera.org"],
+        [/Cloudflare/i, "cloudflare.com"],
+        [/Vercel/i, "vercel.com"],
+        [/YouTube/i, "youtube.com"]
+      ];
+      const match = sources.find(([pattern]) => pattern.test(sender));
+      return match ? `https://www.google.com/s2/favicons?domain=${match[1]}&sz=128` : "";
+    }
+
     function buildEmailBody(mail) {
       const subject = escapeHtml(mail.subject);
       const preview = escapeHtml(mail.preview);
@@ -3400,6 +3460,8 @@
 
     function renderEmailReader(mail) {
       const address = senderAddress(mail);
+      const logo = senderLogo(mail.sender);
+      const senderInitial = escapeHtml(mail.sender.charAt(0).toUpperCase());
       const messagePosition = Math.max(1, emails.findIndex(item => item.id === mail.id) + 1);
       const isIndonesian = Boolean(mail.loa) || /Rumahweb|BRI|Jago|SMART|Shopee|Tokopedia/i.test(mail.sender);
       mailList.innerHTML = `<article class="mail-reader">
@@ -3425,7 +3487,7 @@
           </span>
         </h1>
         <div class="message-heading">
-          <div class="sender-avatar">${escapeHtml(mail.sender.charAt(0).toUpperCase())}</div>
+          <div class="sender-avatar ${logo ? "has-company-logo" : ""}">${logo ? `<img src="${logo}" alt="" onerror="this.parentElement.classList.remove('has-company-logo');this.remove();this.parentElement.textContent='${senderInitial}'">` : senderInitial}</div>
           <div><div class="sender-line">${escapeHtml(mail.sender)} <span class="sender-address">&lt;${escapeHtml(address)}&gt;</span></div><div class="recipient-line">to me⌄</div></div>
           <div class="message-time">${escapeHtml(mail.receivedAt || mail.time)} &nbsp; ☆ &nbsp; ↩ &nbsp; ⋮</div>
         </div>
@@ -3530,6 +3592,7 @@
               ? "m12 2.8 2.9 5.8 6.4.9-4.7 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4-4.7-4.5 6.4-.9z"
               : "M12 3.7 14.5 9l5.8.8-4.2 4.1 1 5.8-5.1-2.8-5.1 2.8 1-5.8-4.2-4.1L9.5 9zm0 4.5-1.2 2.5-2.8.4 2 2-.5 2.8 2.5-1.3 2.5 1.3-.5-2.8 2-2-2.8-.4z"}"/></svg>
           </div>
+          ${senderLogo(mail.sender) ? `<span class="mobile-company-avatar"><img src="${senderLogo(mail.sender)}" alt="" onerror="this.parentElement.remove()"></span>` : ""}
           <div class="sender">${escapeHtml(mail.sender)}</div>
           <div class="subject">${escapeHtml(mail.subject)} <span>— ${escapeHtml(mail.preview)}</span></div>
           <div class="row-end">
