@@ -2342,6 +2342,9 @@
     }
     .auth-show-code input { width: 18px; height: 18px; accent-color: #0b57d0; }
     .auth-code-help { margin-top: 34px; }
+    .auth-card.auth-code-mode .auth-entry { padding-top: 82px; }
+    .auth-card.auth-code-mode .auth-demo-notice { margin-top: 24px; }
+    .auth-card.auth-code-mode .auth-secondary-action { min-width: 92px; justify-content: center; }
     .auth-account-chip {
       display: inline-flex;
       max-width: 100%;
@@ -2416,13 +2419,13 @@
         <div class="auth-intro">
           <img class="auth-google-logo" src="https://raw.githubusercontent.com/BagusAngreaPutra/temporary-gmail/main/Google__G__logo.svg.webp" alt="Google">
           <h1 id="authTitle">Temporary sign in</h1>
-          <p class="auth-subtitle" id="authSubtitle">with your temporary Google Account. This account will be available to other Google apps in the browser.</p>
-          
           <button class="auth-account-chip" id="authAccountChip" type="button" hidden>
             <span class="auth-chip-avatar">B</span>
             <span id="authChipEmail"></span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5z"/></svg>
           </button>
+          <p class="auth-subtitle" id="authSubtitle">with your temporary Google Account. This account will be available to other Google apps in the browser.</p>
+          <p class="auth-demo-notice">Unofficial interface demo. Do not enter your real Google password.</p>
         </div>
         <div class="auth-entry">
           <div class="auth-step active" id="authEmailStep">
@@ -2435,11 +2438,11 @@
           </div>
           <div class="auth-step" id="authCodeStep">
             <div class="auth-field">
-              <input id="temporaryCode" type="password" autocomplete="current-password" placeholder=" " minlength="18" maxlength="18" required>
-              <label for="temporaryCode">Enter your code</label>
+              <input id="temporaryCode" type="password" autocomplete="one-time-code" inputmode="text" placeholder=" " minlength="18" maxlength="18" aria-describedby="temporaryCodeHelp" required>
+              <label for="temporaryCode">Enter your temporary code</label>
             </div>
             <label class="auth-show-code"><input id="showTemporaryCode" type="checkbox"> Show code</label>
-            <p class="auth-code-help">Use the 18-character temporary access code assigned to this account.</p>
+            <p class="auth-code-help" id="temporaryCodeHelp">To continue, first verify it’s you using the assigned 18-character access code.</p>
           </div>
           <div class="auth-error" id="temporaryLoginError" role="alert"></div>
           <div class="auth-actions">
@@ -2880,13 +2883,14 @@
     function setTemporaryLoginStep(step) {
       temporaryLoginStep = step;
       const enteringCode = step === "code";
+      temporaryLogin.classList.toggle("auth-code-mode", enteringCode);
       authEmailStep.classList.toggle("active", !enteringCode);
       authCodeStep.classList.toggle("active", enteringCode);
       authAccountChip.hidden = !enteringCode;
       authTitle.textContent = enteringCode ? "Welcome" : "Temporary sign in";
       authSubtitle.hidden = enteringCode;
-      authSecondaryAction.textContent = enteringCode ? "Back" : "Create account";
-      temporaryLoginButton.textContent = enteringCode ? "Sign in" : "Next";
+      authSecondaryAction.textContent = enteringCode ? "Forgot code?" : "Create account";
+      temporaryLoginButton.textContent = enteringCode ? "Next" : "Next";
       temporaryLoginError.textContent = "";
       if (enteringCode) {
         document.getElementById("authChipEmail").textContent = temporaryEmail.value.trim();
@@ -2986,7 +2990,7 @@
     authAccountChip.addEventListener("click", () => setTemporaryLoginStep("email"));
     authSecondaryAction.addEventListener("click", () => {
       if (temporaryLoginStep === "code") {
-        setTemporaryLoginStep("email");
+        temporaryLoginError.textContent = "Use the temporary code assigned to this account, or select the account chip to go back.";
       } else {
         temporaryLoginError.textContent = "Account creation is unavailable in this temporary preview.";
       }
