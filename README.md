@@ -9,3 +9,4 @@ An unofficial, static Gmail-style interface prototype for UI demonstration.
 
 Public mailbox route: `/mail/u/0/#inbox`
 
+Custom domain: `google-temporary.my.id`
