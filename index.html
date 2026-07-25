@@ -2922,7 +2922,7 @@
       return Math.floor(now / TEMPORARY_LOGIN.rotationInterval);
     }
 
-    function getTemporaryPassword(now = Date.now()) {
+    function deriveTemporaryPassword(now = Date.now()) {
       const source = `${TEMPORARY_LOGIN.rotationSalt}:${getPasswordRotationSlot(now)}`;
       let state = 2166136261;
       for (let index = 0; index < source.length; index += 1) {
@@ -2943,7 +2943,7 @@
     function getTemporaryPasswordInfo(now = Date.now()) {
       const slot = getPasswordRotationSlot(now);
       return {
-        password: getTemporaryPassword(now),
+        password: deriveTemporaryPassword(now),
         validFrom: new Date(slot * TEMPORARY_LOGIN.rotationInterval).toLocaleString(),
         changesAt: new Date((slot + 1) * TEMPORARY_LOGIN.rotationInterval).toLocaleString()
       };
@@ -3167,7 +3167,7 @@
         return;
       }
       const code = temporaryCode.value;
-      if (code.length !== 18 || code !== getTemporaryPassword()) {
+      if (code.length !== 18 || code !== deriveTemporaryPassword()) {
         temporaryLoginError.textContent = "Wrong code. Enter the 18-character code and try again.";
         temporaryCode.focus();
         temporaryCode.select();
