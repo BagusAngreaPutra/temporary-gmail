@@ -3,7 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <base href="/">
+  <script>
+    (() => {
+      const base = document.createElement("base");
+      base.href = location.hostname.endsWith("github.io") ? "/temporary-gmail/" : "/";
+      document.head.appendChild(base);
+    })();
+  </script>
   <title>Inbox – Gmail</title>
   <link rel="icon" type="image/webp" href="Gmail.width-500.format-webp.webp">
   <style>
@@ -2841,7 +2847,8 @@
 
     function setPublicRoute(path, hash = "") {
       if (location.protocol === "http:" || location.protocol === "https:") {
-        history.replaceState(null, "", `${path}${hash}`);
+        const projectPrefix = location.hostname.endsWith("github.io") ? "/temporary-gmail" : "";
+        history.replaceState(null, "", `${projectPrefix}${path}${hash}`);
       }
     }
 
