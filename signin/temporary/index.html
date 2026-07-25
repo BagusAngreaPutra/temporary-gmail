@@ -3522,10 +3522,6 @@
         </div>
       </article>`;
       document.getElementById("readerBack").addEventListener("click", () => {
-        if (history.state?.mailReader) {
-          history.back();
-          return;
-        }
         state.openEmail = null;
         setPublicRoute("/mail/u/0/", mailboxHash(state.view), "replace", { mailbox: true, view: state.view });
         renderEmails();
@@ -3635,6 +3631,13 @@
 
     function openEmail(mail) {
       mail.unread = false;
+      const inboxRoute = mailboxHash(state.view);
+      setPublicRoute(
+        "/mail/u/0/",
+        inboxRoute,
+        "replace",
+        { mailbox: true, view: state.view, messageId: null }
+      );
       state.openEmail = mail.id;
       setPublicRoute(
         "/mail/u/0/",
