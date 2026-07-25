@@ -1839,12 +1839,19 @@
       }
       .mobile-drawer-nav .drawer-badge.social { background: #aecbfa; }
       .mobile-drawer-nav .drawer-badge.updates { background: #ffb774; }
-      .content { background: #fff; }
+      .content {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        background: #fff;
+        overscroll-behavior-y: contain;
+      }
       .toolbar, .filter-chips, .selection-banner { display: none !important; }
       .tabs {
+        position: static;
         display: grid;
         height: auto;
-        padding: 6px 12px 10px;
+        padding: 10px 12px 8px;
         overflow: visible;
         border: 0;
         background: #fff;
@@ -1853,54 +1860,90 @@
       }
       .tabs::before {
         display: block;
-        padding: 12px 4px 8px;
+        padding: 14px 4px 12px;
         color: #5f6368;
         content: "Primary";
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
         grid-column: 1;
       }
       .tab {
         display: grid;
         min-width: 0;
-        height: 68px;
-        padding: 0 16px;
-        border-radius: 14px;
+        height: 84px;
+        padding: 0 18px;
+        border-radius: 16px;
         color: #3c4043;
         background: #f8fafd;
-        grid-template-columns: 42px minmax(0,1fr) auto;
+        grid-template-columns: 46px minmax(0,1fr) auto;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
       }
       .tab.active { display: none; }
-      .tab span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .tab .badge { display: block; padding: 5px 10px; border-radius: 15px; color: #202124; background: #81c995; }
+      .tab[data-category="Social"] { display: none; }
+      .tab[data-category="Promotions"] .icon { color: #34a853; }
+      .tab[data-category="Updates"] .icon { color: #f2994a; }
+      .tab .icon { width: 28px; height: 28px; fill: currentColor; }
+      .tab span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .tab > span:first-of-type::after {
+        display: block;
+        overflow: hidden;
+        margin-top: 4px;
+        color: #5f6368;
+        content: "Latest messages in this category";
+        font-size: 13px;
+        font-weight: 400;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .tab .badge { display: block; padding: 7px 11px; border-radius: 17px; color: #202124; background: #81c995; font-size: 12px; }
       .tab:nth-of-type(4) .badge { background: #f6aea9; }
+      .tab[data-category="Updates"]::after {
+        padding: 7px 11px;
+        border-radius: 17px;
+        color: #202124;
+        background: #ffb774;
+        content: "49 new";
+        font-size: 12px;
+        white-space: nowrap;
+      }
       .tab.active::after { display: none; }
-      .mail-list { height: calc(100dvh - 72px); padding: 0 8px 88px; overflow-y: auto; }
+      .mail-list {
+        height: auto;
+        min-height: calc(100dvh - 72px);
+        padding: 0 10px 104px;
+        overflow: visible;
+      }
       .mail-row, .mail-row:hover {
         position: relative;
-        min-height: 96px;
-        margin-bottom: 3px;
-        padding: 11px 10px;
+        min-height: 108px;
+        margin-bottom: 4px;
+        padding: 14px 12px;
         border: 0;
-        border-radius: 14px;
+        border-radius: 16px;
         background: #fff;
-        grid-template-columns: 48px minmax(0,1fr) 54px;
-        grid-template-rows: 24px 24px 28px;
-        gap: 0 8px;
+        grid-template-columns: 54px minmax(0,1fr) 58px;
+        grid-template-rows: 26px 27px 29px;
+        gap: 0 10px;
         box-shadow: none;
       }
       .mail-row:nth-child(even) { background: #f8fafd; }
       .mail-row::before {
         display: grid;
-        width: 44px;
-        height: 44px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         color: #183153;
         background: #aecbfa;
         content: attr(data-avatar);
-        font-size: 21px;
+        font-size: 22px;
         font-weight: 400;
         text-transform: uppercase;
         grid-column: 1;
@@ -1915,7 +1958,7 @@
         padding: 0;
         grid-column: 2;
         grid-row: 1;
-        font-size: 15px;
+        font-size: 16px;
         text-overflow: ellipsis;
       }
       .mail-row .subject {
@@ -1923,9 +1966,9 @@
         align-self: start;
         grid-column: 2;
         grid-row: 2 / 4;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
-        line-height: 1.45;
+        line-height: 1.4;
         white-space: nowrap;
         text-overflow: ellipsis !important;
       }
@@ -1944,24 +1987,24 @@
         align-self: center;
         grid-column: 3;
         grid-row: 1;
-        font-size: 11px;
+        font-size: 12px;
         text-align: right;
       }
       .mail-row .star {
-        width: 36px;
-        height: 32px;
+        width: 38px;
+        height: 36px;
         justify-self: end;
         align-self: end;
         grid-column: 3;
         grid-row: 3;
       }
-      .mail-row .star svg { width: 23px; height: 23px; }
+      .mail-row .star svg { width: 25px; height: 25px; }
       .mail-row.unread::after {
         position: absolute;
-        top: 18px;
-        right: 7px;
-        width: 7px;
-        height: 7px;
+        top: 22px;
+        right: 9px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: #5bb8e8;
         content: "";
@@ -1971,18 +2014,18 @@
       .mobile-compose {
         position: fixed;
         z-index: 45;
-        right: 18px;
-        bottom: 72px;
+        right: 20px;
+        bottom: 84px;
         display: flex;
-        height: 58px;
-        padding: 0 22px;
+        height: 62px;
+        padding: 0 24px;
         border: 0;
-        border-radius: 18px;
+        border-radius: 20px;
         color: #fff;
         background: #0b57d0;
         align-items: center;
         gap: 10px;
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 600;
         box-shadow: 0 3px 8px rgba(60,64,67,.32);
       }
@@ -1994,7 +2037,7 @@
         bottom: 0;
         left: 0;
         display: flex;
-        height: 64px;
+        height: 76px;
         border-top: 1px solid #e0e3e7;
         background: #f1f3f4;
         align-items: center;
@@ -2002,8 +2045,8 @@
       }
       .mobile-bottom-nav button {
         display: grid;
-        width: 68px;
-        height: 42px;
+         width: 76px;
+         height: 46px;
         border: 0;
         border-radius: 22px;
         color: #444746;
@@ -2013,7 +2056,7 @@
       .mobile-bottom-nav button.active { color: #0b57d0; background: #c2e7ff; }
       .mobile-bottom-nav svg { width: 25px; height: 25px; fill: currentColor; }
       .content.special-mode .tabs { display: none; }
-      .content.special-mode .mail-list { height: calc(100dvh - 72px); padding: 0 0 72px; }
+      .content.special-mode .mail-list { height: auto; min-height: calc(100dvh - 72px); padding: 0 0 84px; }
     }
     @media (min-width: 701px) {
       .mobile-compose, .mobile-bottom-nav, .mobile-sidebar-close, .mobile-sidebar-backdrop, .mobile-drawer-nav { display: none; }
