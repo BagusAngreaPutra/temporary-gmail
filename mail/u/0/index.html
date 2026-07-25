@@ -3704,7 +3704,20 @@
       document.getElementById("accountPopover").classList.toggle("open");
     });
     document.getElementById("accountClose").addEventListener("click", () => document.getElementById("accountPopover").classList.remove("open"));
-    document.querySelectorAll("[data-account-action]").forEach(item => item.addEventListener("click", () => showToast(`${item.dataset.accountAction} opened`)));
+    document.querySelectorAll("[data-account-action]").forEach(item => item.addEventListener("click", () => {
+      const action = item.dataset.accountAction;
+      if (action === "Sign out") {
+        document.getElementById("accountPopover").classList.remove("open");
+        document.querySelectorAll(".overlay.open").forEach(overlay => overlay.classList.remove("open"));
+        temporaryEmail.value = "";
+        temporaryCode.value = "";
+        document.getElementById("showTemporaryCode").checked = false;
+        temporaryCode.type = "password";
+        showTemporaryLogin("You have been signed out.");
+        return;
+      }
+      showToast(`${action} opened`);
+    }));
     document.addEventListener("click", event => {
       const popover = document.getElementById("accountPopover");
       if (!popover.contains(event.target) && event.target !== document.getElementById("accountButton")) popover.classList.remove("open");
