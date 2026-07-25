@@ -1821,8 +1821,25 @@
         gap: 12px !important;
         font-size: 16px;
       }
-      .mobile-drawer-nav .nav-item.active { background: #c2e7ff; }
-      .mobile-drawer-nav .nav-item .icon { width: 24px; height: 24px; }
+      .mobile-drawer-nav .nav-item.active {
+        color: #041e49;
+        background: #c2e7ff;
+      }
+      .mobile-drawer-nav .nav-item .icon {
+        width: 24px;
+        height: 24px;
+        color: #5f6368;
+        fill: none !important;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .mobile-drawer-nav .nav-item.active .icon {
+        color: #041e49 !important;
+        fill: #041e49 !important;
+        stroke: #041e49;
+      }
       .mobile-drawer-nav .count {
         display: block !important;
         margin: 0;
