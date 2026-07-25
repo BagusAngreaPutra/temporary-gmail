@@ -2981,6 +2981,40 @@
       };
     }
 
+    function pushTransientUi(ui) {
+      if ((location.protocol === "http:" || location.protocol === "https:") && history.state?.ui !== ui) {
+        history.pushState({ ...(history.state || {}), ui }, "", location.href);
+      }
+    }
+
+    function closeTransientUi(ui, fallback) {
+      if (history.state?.ui === ui) {
+        history.back();
+      } else {
+        fallback?.();
+      }
+    }
+
+    function syncTransientUiFromHistory() {
+      document.getElementById("app")?.classList.remove("sidebar-pinned");
+      document.getElementById("accountPopover")?.classList.remove("open");
+      document.querySelectorAll(".feature-panel.open, .overlay.open").forEach(element => element.classList.remove("open"));
+      document.getElementById("pdfViewer")?.classList.remove("open");
+      document.body.style.overflow = "";
+      const ui = history.state?.ui;
+      if (ui === "sidebar") document.getElementById("app")?.classList.add("sidebar-pinned");
+      if (ui === "account") document.getElementById("accountPopover")?.classList.add("open");
+      if (ui === "help") document.getElementById("helpPanel")?.classList.add("open");
+      if (ui === "gemini") document.getElementById("geminiPanel")?.classList.add("open");
+      if (ui === "compose") document.getElementById("composeOverlay")?.classList.add("open");
+      if (ui === "upgrade") document.getElementById("upgradeOverlay")?.classList.add("open");
+      if (ui === "label") document.getElementById("labelOverlay")?.classList.add("open");
+      if (ui === "pdf") {
+        document.getElementById("pdfViewer")?.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
     function runAuthLoading(callback, duration = 680) {
       if (authIsLoading) return;
       authIsLoading = true;
@@ -3051,7 +3085,7 @@
       document.body.classList.remove("auth-locked");
       authGate.hidden = true;
       temporaryLoginError.textContent = "";
-      setPublicRoute("/mail/u/0/", mailboxHash(window.state?.view || "inbox"));
+      setPublicRoute("/mail/u/0/", location.hash || "#inbox");
     }
 
     function saveTemporaryActivity(force = false) {
@@ -3560,12 +3594,14 @@
       const attachmentCard = mailList.querySelector("[data-open-pdf]");
       attachmentCard?.addEventListener("click", event => {
         if (event.target.closest("[data-pdf-download], [data-drive-link]")) return;
+        pushTransientUi("pdf");
         document.getElementById("pdfViewer").classList.add("open");
         document.body.style.overflow = "hidden";
       });
       attachmentCard?.addEventListener("keydown", event => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
+          pushTransientUi("pdf");
           document.getElementById("pdfViewer").classList.add("open");
           document.body.style.overflow = "hidden";
         }
@@ -3692,6 +3728,7 @@
         item.classList.toggle("active", active);
       });
       renderEmails();
+      syncTransientUiFromHistory();
     });
 
     mailList.addEventListener("click", event => {
@@ -3748,6 +3785,7 @@
       }
       if (item.dataset.view === "create-label") {
         document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav === item));
+        pushTransientUi("label");
         document.getElementById("labelOverlay").classList.add("open");
         setTimeout(() => document.getElementById("newLabelName").focus(), 0);
         return;
@@ -3770,7 +3808,7 @@
       setPublicRoute(
         "/mail/u/0/",
         mailboxHash(state.view, state.category),
-        "push",
+        history.state?.ui === "sidebar" ? "replace" : "push",
         { mailbox: true, view: state.view, category: state.category }
       );
       renderEmails();
@@ -3781,19 +3819,25 @@
       state.query = event.target.value.trim();
       renderEmails();
     });
-    document.getElementById("menuButton").addEventListener("click", () => document.getElementById("app").classList.toggle("sidebar-pinned"));
-    document.getElementById("mobileSidebarClose").addEventListener("click", () => document.getElementById("app").classList.remove("sidebar-pinned"));
-    document.getElementById("mobileSidebarBackdrop").addEventListener("click", () => document.getElementById("app").classList.remove("sidebar-pinned"));
-    document.getElementById("composeButton").addEventListener("click", () => {
+    document.getElementById("menuButton").addEventListener("click", () => {
+      const app = document.getElementById("app");
+      if (app.classList.contains("sidebar-pinned")) {
+        closeTransientUi("sidebar", () => app.classList.remove("sidebar-pinned"));
+      } else {
+        pushTransientUi("sidebar");
+        app.classList.add("sidebar-pinned");
+      }
+    });
+    document.getElementById("mobileSidebarClose").addEventListener("click", () => closeTransientUi("sidebar", () => document.getElementById("app").classList.remove("sidebar-pinned")));
+    document.getElementById("mobileSidebarBackdrop").addEventListener("click", () => closeTransientUi("sidebar", () => document.getElementById("app").classList.remove("sidebar-pinned")));
+    function openCompose() {
+      pushTransientUi("compose");
       document.getElementById("composeOverlay").classList.add("open");
       document.querySelector(".compose-dialog").classList.remove("minimized");
       setTimeout(() => document.getElementById("composeTo").focus(), 0);
-    });
-    document.getElementById("mobileCompose").addEventListener("click", () => {
-      document.getElementById("composeOverlay").classList.add("open");
-      document.querySelector(".compose-dialog").classList.remove("minimized");
-      setTimeout(() => document.getElementById("composeTo").focus(), 0);
-    });
+    }
+    document.getElementById("composeButton").addEventListener("click", openCompose);
+    document.getElementById("mobileCompose").addEventListener("click", openCompose);
     const composeDialog = document.querySelector(".compose-dialog");
     document.getElementById("composeMinimize").addEventListener("click", () => {
       composeDialog.classList.toggle("minimized");
@@ -3820,7 +3864,7 @@
       document.querySelectorAll(".compose-fields input, .compose-fields textarea").forEach(field => field.value = "");
       document.querySelectorAll(".compose-extra-recipient").forEach(field => field.classList.remove("show"));
       composeDialog.classList.remove("minimized","popout");
-      document.getElementById("composeOverlay").classList.remove("open");
+      closeTransientUi("compose", () => document.getElementById("composeOverlay").classList.remove("open"));
       showToast("Draft discarded");
     });
     document.getElementById("settingsButton").addEventListener("click", () => {
@@ -3829,15 +3873,21 @@
       state.query = "";
       document.getElementById("searchInput").value = "";
       document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav.dataset.view === "manage-labels"));
-      setPublicRoute("/mail/u/0/", "#settings");
+      setPublicRoute("/mail/u/0/", "#settings", "push", { mailbox: true, view: state.view, category: state.category });
       renderEmails();
     });
     const helpPanel = document.getElementById("helpPanel");
     const geminiPanel = document.getElementById("geminiPanel");
     function toggleFeaturePanel(panel) {
       const opening = !panel.classList.contains("open");
+      const ui = panel === helpPanel ? "help" : "gemini";
+      if (!opening) {
+        closeTransientUi(ui, () => panel.classList.remove("open"));
+        return;
+      }
       [helpPanel, geminiPanel].forEach(item => item.classList.remove("open"));
-      if (opening) panel.classList.add("open");
+      pushTransientUi(ui);
+      panel.classList.add("open");
     }
     document.getElementById("helpButton").addEventListener("click", event => {
       event.stopPropagation();
@@ -3851,9 +3901,13 @@
     });
     document.getElementById("upgradeButton").addEventListener("click", () => {
       [helpPanel, geminiPanel].forEach(item => item.classList.remove("open"));
+      pushTransientUi("upgrade");
       document.getElementById("upgradeOverlay").classList.add("open");
     });
-    document.querySelectorAll(".feature-close").forEach(button => button.addEventListener("click", () => button.closest(".feature-panel").classList.remove("open")));
+    document.querySelectorAll(".feature-close").forEach(button => button.addEventListener("click", () => {
+      const panel = button.closest(".feature-panel");
+      closeTransientUi(panel === helpPanel ? "help" : "gemini", () => panel.classList.remove("open"));
+    }));
     document.getElementById("helpSearch").addEventListener("input", event => {
       const query = event.target.value.trim().toLowerCase();
       document.querySelectorAll("#helpLinks .help-link").forEach(link => link.hidden = !link.textContent.toLowerCase().includes(query));
@@ -3873,15 +3927,17 @@
       submitGeminiPrompt(button.textContent);
     }));
     document.querySelectorAll(".upgrade-choose").forEach(button => button.addEventListener("click", () => {
-      document.getElementById("upgradeOverlay").classList.remove("open");
+      closeTransientUi("upgrade", () => document.getElementById("upgradeOverlay").classList.remove("open"));
       showToast(`${button.dataset.plan} selected`);
     }));
     const pdfViewer = document.getElementById("pdfViewer");
     const pdfPageImage = document.getElementById("pdfPageImage");
     let pdfZoom = 1;
     function closePdfViewer() {
-      pdfViewer.classList.remove("open");
-      document.body.style.overflow = "";
+      closeTransientUi("pdf", () => {
+        pdfViewer.classList.remove("open");
+        document.body.style.overflow = "";
+      });
     }
     function updatePdfZoom() {
       pdfPageImage.style.width = `${Math.round(Math.min(690, window.innerWidth - 80) * pdfZoom)}px`;
@@ -3896,9 +3952,15 @@
     document.getElementById("pdfMore").addEventListener("click", () => showToast("More PDF options opened"));
     document.getElementById("accountButton").addEventListener("click", event => {
       event.stopPropagation();
-      document.getElementById("accountPopover").classList.toggle("open");
+      const popover = document.getElementById("accountPopover");
+      if (popover.classList.contains("open")) {
+        closeTransientUi("account", () => popover.classList.remove("open"));
+      } else {
+        pushTransientUi("account");
+        popover.classList.add("open");
+      }
     });
-    document.getElementById("accountClose").addEventListener("click", () => document.getElementById("accountPopover").classList.remove("open"));
+    document.getElementById("accountClose").addEventListener("click", () => closeTransientUi("account", () => document.getElementById("accountPopover").classList.remove("open")));
     document.querySelectorAll("[data-account-action]").forEach(item => item.addEventListener("click", () => {
       const action = item.dataset.accountAction;
       if (action === "Sign out") {
@@ -3915,9 +3977,13 @@
     }));
     document.addEventListener("click", event => {
       const popover = document.getElementById("accountPopover");
-      if (!popover.contains(event.target) && event.target !== document.getElementById("accountButton")) popover.classList.remove("open");
-      if (!helpPanel.contains(event.target) && event.target !== document.getElementById("helpButton")) helpPanel.classList.remove("open");
-      if (!geminiPanel.contains(event.target) && event.target !== document.getElementById("geminiButton")) geminiPanel.classList.remove("open");
+      if (popover.classList.contains("open") && !popover.contains(event.target) && event.target !== document.getElementById("accountButton")) {
+        closeTransientUi("account", () => popover.classList.remove("open"));
+      } else if (helpPanel.classList.contains("open") && !helpPanel.contains(event.target) && event.target !== document.getElementById("helpButton")) {
+        closeTransientUi("help", () => helpPanel.classList.remove("open"));
+      } else if (geminiPanel.classList.contains("open") && !geminiPanel.contains(event.target) && event.target !== document.getElementById("geminiButton")) {
+        closeTransientUi("gemini", () => geminiPanel.classList.remove("open"));
+      }
     });
     document.getElementById("selectAll").addEventListener("click", () => {
       const rows = visibleEmails();
@@ -3950,7 +4016,7 @@
       const subject = document.getElementById("composeSubject").value.trim();
       if (!to) return showToast("Add at least one recipient");
       emails.push({ id:emails.length, sender:"Me", subject:subject || "(no subject)", preview:document.getElementById("composeBody").value || "Sent message", time:"Now", category:"Primary", folder:"sent", starred:false, selected:false });
-      document.getElementById("composeOverlay").classList.remove("open");
+      closeTransientUi("compose", () => document.getElementById("composeOverlay").classList.remove("open"));
       document.querySelectorAll(".compose-fields input, .compose-fields textarea").forEach(field => field.value = "");
       document.querySelectorAll(".compose-extra-recipient").forEach(field => field.classList.remove("show"));
       composeDialog.classList.remove("minimized","popout");
@@ -3959,14 +4025,28 @@
     document.getElementById("createLabelButton").addEventListener("click", () => {
       const value = document.getElementById("newLabelName").value.trim();
       if (!value) return showToast("Enter a label name");
-      document.getElementById("labelOverlay").classList.remove("open");
+      closeTransientUi("label", () => document.getElementById("labelOverlay").classList.remove("open"));
       document.getElementById("newLabelName").value = "";
       showToast(`Label “${value}” created`);
     });
 
-    document.querySelectorAll(".close-dialog").forEach(button => button.addEventListener("click", () => button.closest(".overlay").classList.remove("open")));
+    function overlayHistoryKey(overlay) {
+      if (overlay.id === "composeOverlay") return "compose";
+      if (overlay.id === "upgradeOverlay") return "upgrade";
+      if (overlay.id === "labelOverlay") return "label";
+      return "";
+    }
+    document.querySelectorAll(".close-dialog").forEach(button => button.addEventListener("click", () => {
+      const overlay = button.closest(".overlay");
+      const ui = overlayHistoryKey(overlay);
+      if (ui) closeTransientUi(ui, () => overlay.classList.remove("open"));
+      else overlay.classList.remove("open");
+    }));
     document.querySelectorAll(".overlay").forEach(overlay => overlay.addEventListener("click", event => {
-      if (event.target === overlay) overlay.classList.remove("open");
+      if (event.target !== overlay) return;
+      const ui = overlayHistoryKey(overlay);
+      if (ui) closeTransientUi(ui, () => overlay.classList.remove("open"));
+      else overlay.classList.remove("open");
     }));
     document.querySelectorAll("button:not(#menuButton):not(#mobileSidebarClose):not(#composeButton):not(#composeMinimize):not(#composePopout):not(#composeCc):not(#composeBcc):not(#composeAttach):not(#composeDiscard):not(#sendMenu):not(#sendButton):not(#settingsButton):not(#helpButton):not(#geminiButton):not(#upgradeButton):not(#geminiSend):not(#pdfClose):not(#pdfZoomIn):not(#pdfZoomOut):not(#pdfZoomReset):not(#pdfPrint):not(#openWithDocs):not(#pdfMore):not(#accountButton):not(#accountClose):not(.feature-close):not(.gemini-suggestion):not(.upgrade-choose):not(.close-dialog):not([data-account-action]):not([data-bulk]):not(#selectAllConversations)").forEach(button => {
       if (button.closest(".mail-row")) return;
@@ -3977,9 +4057,16 @@
     });
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") {
-        document.querySelectorAll(".overlay.open").forEach(overlay => overlay.classList.remove("open"));
-        if (pdfViewer.classList.contains("open")) closePdfViewer();
-        document.getElementById("app").classList.remove("sidebar-pinned");
+        if (history.state?.ui) {
+          history.back();
+        } else {
+          document.querySelectorAll(".overlay.open").forEach(overlay => overlay.classList.remove("open"));
+          if (pdfViewer.classList.contains("open")) {
+            pdfViewer.classList.remove("open");
+            document.body.style.overflow = "";
+          }
+          document.getElementById("app").classList.remove("sidebar-pinned");
+        }
       }
     });
 
