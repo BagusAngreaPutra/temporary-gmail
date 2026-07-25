@@ -2945,14 +2945,40 @@
       }
     }
 
-    function mailboxHash(view = "inbox") {
+    function mailboxHash(view = "inbox", category = "Primary") {
       const routeNames = {
         inbox: "inbox", starred: "starred", snoozed: "snoozed", sent: "sent",
         drafts: "drafts", purchases: "purchases", important: "important",
         scheduled: "scheduled", all: "all", spam: "spam", trash: "trash",
         subscriptions: "subscriptions", settings: "settings", "manage-labels": "settings"
       };
+      if (view === "inbox" && category !== "Primary") {
+        return `#category/${category.toLowerCase()}`;
+      }
       return `#${routeNames[view] || "inbox"}`;
+    }
+
+    function readMailboxRoute() {
+      const parts = location.hash.replace(/^#/, "").split("/");
+      const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
+      const supportedCategories = {
+        primary: "Primary",
+        promotions: "Promotions",
+        social: "Social",
+        updates: "Updates"
+      };
+      if (parts[0] === "category" && supportedCategories[parts[1]]) {
+        return {
+          view: "inbox",
+          category: supportedCategories[parts[1]],
+          messageId: parts[2] && Number.isFinite(Number(parts[2])) ? Number(parts[2]) : null
+        };
+      }
+      return {
+        view: supportedViews.has(parts[0]) ? (parts[0] === "settings" ? "manage-labels" : parts[0]) : "inbox",
+        category: "Primary",
+        messageId: parts[1] && Number.isFinite(Number(parts[1])) ? Number(parts[1]) : null
+      };
     }
 
     function runAuthLoading(callback, duration = 680) {
@@ -3240,14 +3266,14 @@
 
     const state = { category:"Primary", view:"inbox", query:"", allConversationsSelected:false, openEmail:null };
     if (!document.body.classList.contains("auth-locked")) {
-      const [routeView, routeMessage] = location.hash.replace(/^#/, "").split("/");
-      const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
-      if (supportedViews.has(routeView)) state.view = routeView === "settings" ? "manage-labels" : routeView;
-      if (routeMessage && Number.isFinite(Number(routeMessage))) state.openEmail = Number(routeMessage);
+      const route = readMailboxRoute();
+      state.view = route.view;
+      state.category = route.category;
+      state.openEmail = route.messageId;
       const initialHash = state.openEmail !== null
-        ? `${mailboxHash(state.view)}/${state.openEmail}`
-        : mailboxHash(state.view);
-      setPublicRoute("/mail/u/0/", initialHash, "replace", { mailbox: true, view: state.view, messageId: state.openEmail });
+        ? `${mailboxHash(state.view, state.category)}/${state.openEmail}`
+        : mailboxHash(state.view, state.category);
+      setPublicRoute("/mail/u/0/", initialHash, "replace", { mailbox: true, view: state.view, category: state.category, messageId: state.openEmail });
     }
     const mailList = document.getElementById("mailList");
     const toast = document.getElementById("toast");
@@ -3523,7 +3549,7 @@
       </article>`;
       document.getElementById("readerBack").addEventListener("click", () => {
         state.openEmail = null;
-        setPublicRoute("/mail/u/0/", mailboxHash(state.view), "replace", { mailbox: true, view: state.view });
+        setPublicRoute("/mail/u/0/", mailboxHash(state.view, state.category), "replace", { mailbox: true, view: state.view, category: state.category });
         renderEmails();
       });
       document.getElementById("closeTranslation")?.addEventListener("click", () => document.getElementById("translationCard").remove());
@@ -3631,35 +3657,40 @@
 
     function openEmail(mail) {
       mail.unread = false;
-      const inboxRoute = mailboxHash(state.view);
+      const inboxRoute = mailboxHash(state.view, state.category);
       setPublicRoute(
         "/mail/u/0/",
         inboxRoute,
         "replace",
-        { mailbox: true, view: state.view, messageId: null }
+        { mailbox: true, view: state.view, category: state.category, messageId: null }
       );
       state.openEmail = mail.id;
       setPublicRoute(
         "/mail/u/0/",
-        `#${state.view === "inbox" ? "inbox" : state.view}/${mail.id}`,
+        `${inboxRoute}/${mail.id}`,
         "push",
-        { mailbox: true, mailReader: true, view: state.view, messageId: mail.id }
+        { mailbox: true, mailReader: true, view: state.view, category: state.category, messageId: mail.id }
       );
       renderEmails();
     }
 
     window.addEventListener("popstate", () => {
       if (document.body.classList.contains("auth-locked")) return;
-      const [routeView, routeMessage] = location.hash.replace(/^#/, "").split("/");
-      const supportedViews = new Set(["inbox","starred","snoozed","sent","drafts","purchases","important","scheduled","all","spam","trash","subscriptions","settings"]);
-      state.view = supportedViews.has(routeView)
-        ? (routeView === "settings" ? "manage-labels" : routeView)
-        : "inbox";
-      state.openEmail = routeMessage && Number.isFinite(Number(routeMessage))
-        ? Number(routeMessage)
-        : null;
+      const route = readMailboxRoute();
+      state.view = route.view;
+      state.category = route.category;
+      state.openEmail = route.messageId;
       document.getElementById("pdfViewer")?.classList.remove("open");
       document.body.style.overflow = "";
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.toggle("active", state.view === "inbox" && tab.dataset.category === state.category);
+      });
+      document.querySelectorAll(".nav-item").forEach(item => {
+        const active = item.dataset.category
+          ? state.view === "inbox" && item.dataset.category === state.category
+          : item.dataset.view === state.view && (state.view !== "inbox" || state.category === "Primary");
+        item.classList.toggle("active", active);
+      });
       renderEmails();
     });
 
@@ -3697,7 +3728,12 @@
           : item.dataset.view === "inbox";
         item.classList.toggle("active", matchesCategory);
       });
-      setPublicRoute("/mail/u/0/", "#inbox");
+      setPublicRoute(
+        "/mail/u/0/",
+        mailboxHash(state.view, state.category),
+        "push",
+        { mailbox: true, view: state.view, category: state.category }
+      );
       renderEmails();
     }));
 
@@ -3731,7 +3767,12 @@
         showToast("No snoozed messages");
       }
       document.querySelectorAll(".nav-item").forEach(nav => nav.classList.toggle("active", nav === item));
-      setPublicRoute("/mail/u/0/", mailboxHash(state.view));
+      setPublicRoute(
+        "/mail/u/0/",
+        mailboxHash(state.view, state.category),
+        "push",
+        { mailbox: true, view: state.view, category: state.category }
+      );
       renderEmails();
       if (window.innerWidth <= 700) document.getElementById("app").classList.remove("sidebar-pinned");
     }));
